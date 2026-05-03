@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Birth-to-Life — Doctor Portal</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- AUTH PAGE -->
+<div id="authPage" class="auth-page">
+  <div class="auth-container">
+    <div class="auth-logo">
+      <div class="logo-icon">🩺</div>
+      <h1>Birth-to-Life</h1>
+      <p>Doctor Medical Records Portal</p>
+    </div>
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
+        <button class="auth-tab" onclick="switchAuthTab('register')">Register</button>
+      </div>
+
+      <!-- Login -->
+      <div id="loginSection" class="form-section active">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="loginEmail" placeholder="doctor@hospital.com">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="loginPassword" placeholder="••••••••">
+        </div>
+        <div id="loginError" class="alert alert-error" style="display:none"></div>
+        <button class="btn btn-primary" onclick="handleLogin()">Sign In to Doctor Portal</button>
+        <p style="text-align:center;margin-top:16px;font-size:0.8rem;color:var(--text-muted)">
+          New doctor? <a href="#" onclick="switchAuthTab('register')" style="color:var(--cyan)">Register here</a>
+        </p>
+      </div>
+
+      <!-- Register -->
+      <div id="registerSection" class="form-section">
+        <div class="form-row">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" id="regFirstName" placeholder="James">
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" id="regLastName" placeholder="Wilson">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="regEmail" placeholder="doctor@hospital.com">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="regPassword" placeholder="Minimum 6 characters">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>License Number</label>
+            <input type="text" id="regLicense" placeholder="MD-123456">
+          </div>
+          <div class="form-group">
+            <label>Specialty</label>
+            <select id="regSpecialty">
+              <option value="">Select specialty</option>
+              <option>Pediatrics</option>
+              <option>General Practice</option>
+              <option>Cardiology</option>
+              <option>Neurology</option>
+              <option>Orthopedics</option>
+              <option>Dermatology</option>
+              <option>Oncology</option>
+              <option>Gastroenterology</option>
+              <option>Neonatology</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Hospital / Clinic</label>
+            <input type="text" id="regHospital" placeholder="City General Hospital">
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" id="regPhone" placeholder="+1 (555) 000-0000">
+          </div>
+        </div>
+        <div id="registerError" class="alert alert-error" style="display:none"></div>
+        <button class="btn btn-primary" onclick="handleRegister()">Create Doctor Account</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="dashboard" style="display:none">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">
+        <div class="icon">🩺</div>
+        <div>
+          <h2>Birth-to-Life</h2>
+          <p>Doctor Portal</p>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-user">
+      <div class="user-avatar">👨‍⚕️</div>
+      <div class="user-info">
+        <div class="name" id="sidebarName">Loading...</div>
+        <div class="role" id="sidebarSpecialty">Doctor</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-item active" onclick="showSection('overview')">
+        <span class="nav-icon">🏠</span> Overview
+      </button>
+      <button class="nav-item" onclick="showSection('search')">
+        <span class="nav-icon">🔍</span> Search Patient
+      </button>
+      <button class="nav-item" onclick="showSection('myPatients')">
+        <span class="nav-icon">👥</span> My Patients
+      </button>
+      <button class="nav-item" onclick="showSection('myRequests')">
+        <span class="nav-icon">📋</span> Access Requests
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn btn-ghost" style="width:100%" onclick="signOut()">⬅ Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-content">
+    <div class="top-bar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+        <span class="page-title" id="pageTitle">Overview</span>
+      </div>
+      <div class="top-bar-actions">
+        <button class="btn btn-primary btn-sm" onclick="showSection('search')">🔍 Find Patient</button>
+      </div>
+    </div>
+
+    <div class="content-area">
+
+      <!-- OVERVIEW -->
+      <div id="sectionOverview" class="section">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon cyan">✓</div>
+            <div>
+              <div class="stat-value" id="statApproved">0</div>
+              <div class="stat-label">Approved Accesses</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon yellow">⏳</div>
+            <div>
+              <div class="stat-value" id="statPending">0</div>
+              <div class="stat-label">Pending Requests</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">📝</div>
+            <div>
+              <div class="stat-value" id="statNotes">0</div>
+              <div class="stat-label">Notes Written</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon cyan">👶</div>
+            <div>
+              <div class="stat-value" id="statPatients">0</div>
+              <div class="stat-label">Total Patients</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">👥 Recent Patients</span>
+              <button class="btn btn-ghost btn-sm" onclick="showSection('myPatients')">View All</button>
+            </div>
+            <div id="overviewPatients"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">📋 My Access Requests</span>
+              <button class="btn btn-ghost btn-sm" onclick="showSection('myRequests')">View All</button>
+            </div>
+            <div id="overviewReqs"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEARCH -->
+      <div id="sectionSearch" class="section" style="display:none">
+        <div class="card" style="max-width:600px;margin:0 auto">
+          <h3 style="margin-bottom:20px">Search Patient by Child ID</h3>
+          <div class="alert alert-info">
+            <span>ℹ</span>
+            <span>Ask the parent to share their child's BTL-ID. Enter it below to search and request access.</span>
+          </div>
+          <div class="form-group" style="margin-top:16px">
+            <label>Child ID</label>
+            <div style="display:flex;gap:10px">
+              <input type="text" id="searchChildId" placeholder="BTL-XXXXXXXX" style="font-family:monospace;letter-spacing:0.08em;text-transform:uppercase">
+              <button class="btn btn-primary" onclick="handleSearch()" style="white-space:nowrap;width:auto">Search</button>
+            </div>
+          </div>
+          <div id="searchResult"></div>
+        </div>
+      </div>
+
+      <!-- MY PATIENTS -->
+      <div id="sectionMyPatients" class="section" style="display:none">
+        <div class="card-header" style="margin-bottom:20px">
+          <h2>My Patients</h2>
+        </div>
+        <div id="patientsGrid" class="children-grid"></div>
+      </div>
+
+      <!-- PATIENT DETAIL -->
+      <div id="sectionPatientDetail" class="section record-detail" style="display:none">
+        <div class="detail-header">
+          <button class="detail-back" onclick="showSection('myPatients')">← Back</button>
+          <div id="detailPatientInfo"></div>
+        </div>
+
+        <div class="section-tabs">
+          <button class="section-tab active" onclick="switchPatientTab('info')">Info</button>
+          <button class="section-tab" onclick="switchPatientTab('documents')">Documents</button>
+          <button class="section-tab" onclick="switchPatientTab('vaccinations')">Vaccinations</button>
+          <button class="section-tab" onclick="switchPatientTab('notes')">Notes</button>
+        </div>
+
+        <div id="patientTabInfo">
+          <div class="info-grid" id="patientInfoGrid"></div>
+        </div>
+
+        <div id="patientTabDocuments" style="display:none">
+          <h3 style="margin-bottom:16px">Medical Documents</h3>
+          <div id="patientDocsList"></div>
+        </div>
+
+        <div id="patientTabVaccinations" style="display:none">
+          <div class="card-header" style="margin-bottom:16px">
+            <h3>Vaccination Records</h3>
+            <button class="btn btn-primary btn-sm" onclick="openModal('addVaccModal')">+ Add Vaccination</button>
+          </div>
+          <div class="card">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr><th>Vaccine</th><th>Date</th><th>Dose</th><th>Administered By</th><th>Next Due</th></tr>
+                </thead>
+                <tbody id="patientVaccTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="patientTabNotes" style="display:none">
+          <div class="card-header" style="margin-bottom:16px">
+            <h3>Doctor Notes</h3>
+            <button class="btn btn-primary btn-sm" onclick="openModal('addNoteModal')">+ Add Note</button>
+          </div>
+          <div id="patientNotesList"></div>
+        </div>
+      </div>
+
+      <!-- MY REQUESTS -->
+      <div id="sectionMyRequests" class="section" style="display:none">
+        <h2 style="margin-bottom:20px">My Access Requests</h2>
+        <div class="card">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr><th>Child</th><th>Reason</th><th>Requested</th><th>Status</th><th>Responded</th></tr>
+              </thead>
+              <tbody id="myRequestsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+
+<!-- Request Access Modal -->
+<div class="modal-overlay" id="requestAccessModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Request Access to Records</h3>
+      <button class="modal-close" onclick="closeModal('requestAccessModal')">×</button>
+    </div>
+    <div id="requestChildInfo" style="padding:14px;background:var(--bg-secondary);border-radius:var(--radius-sm);margin-bottom:20px;border:1px solid var(--border)"></div>
+    <div class="form-group">
+      <label>Reason for Access</label>
+      <textarea id="requestReason" placeholder="Explain why you need access to this child's medical records..." rows="4"></textarea>
+    </div>
+    <div id="requestAccessError" class="alert alert-error" style="display:none"></div>
+    <button class="btn btn-primary" id="requestAccessBtn" onclick="handleRequestAccess()">Send Access Request</button>
+  </div>
+</div>
+
+<!-- Add Note Modal -->
+<div class="modal-overlay" id="addNoteModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Add Doctor Note</h3>
+      <button class="modal-close" onclick="closeModal('addNoteModal')">×</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Note Title</label>
+        <input type="text" id="noteTitle" placeholder="e.g. Follow-up visit, Diagnosis">
+      </div>
+      <div class="form-group">
+        <label>Note Type</label>
+        <select id="noteType">
+          <option value="general">General</option>
+          <option value="diagnosis">Diagnosis</option>
+          <option value="prescription">Prescription</option>
+          <option value="follow_up">Follow-up</option>
+          <option value="procedure">Procedure</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Note Content</label>
+      <textarea id="noteContent" rows="6" placeholder="Enter detailed medical notes..."></textarea>
+    </div>
+    <div id="addNoteError" class="alert alert-error" style="display:none"></div>
+    <button class="btn btn-primary" id="addNoteBtn" onclick="handleAddNote()">Save Note</button>
+  </div>
+</div>
+
+<!-- Add Vaccination Modal -->
+<div class="modal-overlay" id="addVaccModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Add Vaccination Record</h3>
+      <button class="modal-close" onclick="closeModal('addVaccModal')">×</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Vaccine Name</label>
+        <input type="text" id="vaccName" placeholder="e.g. MMR, DTaP, Influenza">
+      </div>
+      <div class="form-group">
+        <label>Date Administered</label>
+        <input type="date" id="vaccDate">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Dose Number</label>
+        <input type="number" id="vaccDose" value="1" min="1">
+      </div>
+      <div class="form-group">
+        <label>Administered By</label>
+        <input type="text" id="vaccAdminBy" placeholder="Your name/clinic">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Batch / Lot Number</label>
+        <input type="text" id="vaccBatch" placeholder="Optional">
+      </div>
+      <div class="form-group">
+        <label>Next Due Date</label>
+        <input type="date" id="vaccNextDue">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <input type="text" id="vaccNotes" placeholder="Any reactions or observations">
+    </div>
+    <div id="addVaccError" class="alert alert-error" style="display:none"></div>
+    <button class="btn btn-primary" id="addVaccBtn" onclick="handleAddVacc()">Save Vaccination</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script>
+let currentUser = null;
+let currentDoctor = null;
+let currentPatientChildId = null;
+let searchedChild = null;
+
+// Init
+(async () => {
+  const user = await getCurrentUser();
+  if (!user) { window.location.href = 'index.html'; return; }
+  const profile = await getUserProfile(user.id);
+  if (!profile || profile.role !== 'doctor') { window.location.href = 'index.html'; return; }
+  currentUser = user;
+  const { data: doctor } = await db.from('doctors').select('*').eq('user_id', user.id).single();
+  currentDoctor = doctor;
+  document.getElementById('sidebarName').textContent = 'Dr. ' + profile.full_name;
+  document.getElementById('sidebarSpecialty').textContent = doctor?.specialty || 'Doctor';
+  document.getElementById('authPage').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'flex';
+  await loadOverview();
+})();
+
+function switchAuthTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t, i) => t.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'register')));
+  document.getElementById('loginSection').classList.toggle('active', tab === 'login');
+  document.getElementById('registerSection').classList.toggle('active', tab === 'register');
+}
+
+async function handleLogin() {
+  const btn = event.target;
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPassword').value;
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none';
+  if (!email || !pass) { errEl.textContent = 'Please fill in all fields.'; errEl.style.display = 'flex'; return; }
+  setLoading(btn, true);
+  const { error } = await db.auth.signInWithPassword({ email, password: pass });
+  if (error) { errEl.textContent = error.message; errEl.style.display = 'flex'; setLoading(btn, false); return; }
+  const user = await getCurrentUser();
+  const profile = await getUserProfile(user.id);
+  if (!profile || profile.role !== 'doctor') {
+    await db.auth.signOut(); errEl.textContent = 'This account is not a doctor account.'; errEl.style.display = 'flex'; setLoading(btn, false); return;
+  }
+  window.location.reload();
+}
+
+async function handleRegister() {
+  const btn = event.target;
+  const firstName = document.getElementById('regFirstName').value.trim();
+  const lastName = document.getElementById('regLastName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pass = document.getElementById('regPassword').value;
+  const license = document.getElementById('regLicense').value.trim();
+  const errEl = document.getElementById('registerError');
+  errEl.style.display = 'none';
+  if (!firstName || !lastName || !email || !pass || !license) { errEl.textContent = 'All fields except specialty are required.'; errEl.style.display = 'flex'; return; }
+  if (pass.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; errEl.style.display = 'flex'; return; }
+  setLoading(btn, true);
+  const { data, error } = await db.auth.signUp({ email, password: pass });
+  if (error) { errEl.textContent = error.message; errEl.style.display = 'flex'; setLoading(btn, false); return; }
+  const userId = data.user.id;
+  await db.from('users').insert({ id: userId, email, role: 'doctor', full_name: `${firstName} ${lastName}` });
+  await db.from('doctors').insert({
+    user_id: userId,
+    license_number: license,
+    specialty: document.getElementById('regSpecialty').value || null,
+    hospital: document.getElementById('regHospital').value.trim() || null,
+    phone: document.getElementById('regPhone').value.trim() || null,
+  });
+  window.location.reload();
+}
+
+function showSection(name) {
+  document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+  const map = {
+    overview: 'sectionOverview', search: 'sectionSearch', myPatients: 'sectionMyPatients',
+    myRequests: 'sectionMyRequests', patientDetail: 'sectionPatientDetail'
+  };
+  const el = document.getElementById(map[name]);
+  if (el) el.style.display = 'block';
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const titles = { overview: 'Overview', search: 'Find Patient', myPatients: 'My Patients', myRequests: 'Access Requests', patientDetail: 'Patient Records' };
+  document.getElementById('pageTitle').textContent = titles[name] || name;
+  if (name === 'myPatients') loadMyPatients();
+  if (name === 'myRequests') loadMyRequests();
+  if (name === 'overview') loadOverview();
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+async function loadOverview() {
+  if (!currentDoctor) return;
+  const [approved, pending, notes] = await Promise.all([
+    db.from('doctor_access_requests').select('id').eq('doctor_id', currentDoctor.id).eq('status', 'approved'),
+    db.from('doctor_access_requests').select('id').eq('doctor_id', currentDoctor.id).eq('status', 'pending'),
+    db.from('doctor_notes').select('id').eq('doctor_id', currentDoctor.id),
+  ]);
+  const approvedCount = (approved.data || []).length;
+  document.getElementById('statApproved').textContent = approvedCount;
+  document.getElementById('statPending').textContent = (pending.data || []).length;
+  document.getElementById('statNotes').textContent = (notes.data || []).length;
+  document.getElementById('statPatients').textContent = approvedCount;
+
+  // Recent patients
+  const { data: reqs } = await db.from('doctor_access_requests')
+    .select('*, children(*)')
+    .eq('doctor_id', currentDoctor.id).eq('status', 'approved')
+    .order('responded_at', { ascending: false }).limit(3);
+  const pEl = document.getElementById('overviewPatients');
+  if (!reqs || !reqs.length) { pEl.innerHTML = '<div class="empty-state"><div class="icon">👥</div><p>No approved patients yet</p></div>'; }
+  else {
+    pEl.innerHTML = reqs.map(r => `
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="openPatientDetail('${r.children.id}')">
+        <div class="child-avatar ${r.children.gender || 'male'}" style="width:38px;height:38px;border-radius:10px;font-size:18px">${r.children.gender === 'female' ? '👧' : '👦'}</div>
+        <div style="flex:1">
+          <div style="font-weight:600;font-size:0.875rem">${r.children.full_name}</div>
+          <div style="font-size:0.75rem;color:var(--cyan);font-family:monospace">${r.children.child_id}</div>
+        </div>
+        <div style="font-size:0.75rem;color:var(--text-muted)">${calcAge(r.children.date_of_birth)}</div>
+      </div>`).join('');
+  }
+
+  // My recent requests
+  const { data: myReqs } = await db.from('doctor_access_requests')
+    .select('*, children(full_name)')
+    .eq('doctor_id', currentDoctor.id)
+    .order('requested_at', { ascending: false }).limit(3);
+  const rEl = document.getElementById('overviewReqs');
+  if (!myReqs || !myReqs.length) { rEl.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>No requests made yet</p></div>'; }
+  else {
+    rEl.innerHTML = myReqs.map(r => `
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="flex:1">
+          <div style="font-weight:600;font-size:0.875rem">${r.children?.full_name}</div>
+          <div style="font-size:0.72rem;color:var(--text-muted)">${formatDate(r.requested_at)}</div>
+        </div>
+        <span class="badge badge-${r.status}">${r.status}</span>
+      </div>`).join('');
+  }
+}
+
+// Search
+async function handleSearch() {
+  const idInput = document.getElementById('searchChildId').value.trim().toUpperCase();
+  const result = document.getElementById('searchResult');
+  if (!idInput) { result.innerHTML = '<div class="alert alert-error">Please enter a Child ID.</div>'; return; }
+  result.innerHTML = '<div style="text-align:center;padding:20px"><span class="loading-spinner"></span></div>';
+  const { data: child, error } = await db.from('children').select('*, parents(*)').eq('child_id', idInput).single();
+  if (error || !child) { result.innerHTML = '<div class="alert alert-error">No child found with that ID. Please check the ID and try again.</div>'; return; }
+  searchedChild = child;
+
+  // Check if already have a request
+  const { data: existing } = await db.from('doctor_access_requests')
+    .select('*').eq('doctor_id', currentDoctor.id).eq('child_id', child.id).single();
+
+  let actionHTML = '';
+  if (existing) {
+    if (existing.status === 'approved') {
+      actionHTML = `<div class="alert alert-success">✓ You have approved access to this patient's records.</div>
+        <button class="btn btn-primary" onclick="openPatientDetail('${child.id}')">View Records →</button>`;
+    } else if (existing.status === 'pending') {
+      actionHTML = `<div class="alert alert-info">⏳ Access request pending parent approval.</div>`;
+    } else {
+      actionHTML = `<div class="alert alert-error">✕ Your access request was rejected by the parent.</div>`;
+    }
+  } else {
+    actionHTML = `<button class="btn btn-primary" onclick="openRequestModal('${child.id}')">Request Access to Records</button>`;
+  }
+
+  result.innerHTML = `
+    <div style="margin-top:20px;padding:20px;background:var(--bg-secondary);border-radius:var(--radius-sm);border:1px solid var(--border-light)">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+        <div class="child-avatar ${child.gender || 'male'}" style="width:52px;height:52px;border-radius:14px;font-size:26px">${child.gender === 'female' ? '👧' : '👦'}</div>
+        <div>
+          <h3>${child.full_name}</h3>
+          <div style="color:var(--cyan);font-family:monospace;font-size:0.875rem">${child.child_id}</div>
+        </div>
+      </div>
+      <div class="info-grid" style="margin-bottom:16px">
+        <div class="info-item"><div class="info-label">Date of Birth</div><div class="info-value">${formatDate(child.date_of_birth)}</div></div>
+        <div class="info-item"><div class="info-label">Age</div><div class="info-value">${calcAge(child.date_of_birth)}</div></div>
+        <div class="info-item"><div class="info-label">Gender</div><div class="info-value">${child.gender || '—'}</div></div>
+        <div class="info-item"><div class="info-label">Blood Type</div><div class="info-value">${child.blood_type || '—'}</div></div>
+      </div>
+      ${actionHTML}
+    </div>`;
+}
+
+function openRequestModal(childId) {
+  const child = searchedChild;
+  document.getElementById('requestChildInfo').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="font-size:24px">${child?.gender === 'female' ? '👧' : '👦'}</div>
+      <div>
+        <strong>${child?.full_name}</strong><br>
+        <span style="color:var(--cyan);font-family:monospace;font-size:0.8rem">${child?.child_id}</span>
+      </div>
+    </div>`;
+  document.getElementById('requestAccessError').style.display = 'none';
+  document.getElementById('requestReason').value = '';
+  openModal('requestAccessModal');
+}
+
+async function handleRequestAccess() {
+  const btn = document.getElementById('requestAccessBtn');
+  const errEl = document.getElementById('requestAccessError');
+  errEl.style.display = 'none';
+  const reason = document.getElementById('requestReason').value.trim();
+  if (!reason) { errEl.textContent = 'Please provide a reason for access.'; errEl.style.display = 'flex'; return; }
+  setLoading(btn, true);
+  const { error } = await db.from('doctor_access_requests').insert({
+    doctor_id: currentDoctor.id,
+    child_id: searchedChild.id,
+    reason,
+  });
+  setLoading(btn, false);
+  if (error) { errEl.textContent = error.message; errEl.style.display = 'flex'; return; }
+  closeModal('requestAccessModal');
+  showToast('Access request sent to parent!', 'success');
+  handleSearch();
+  loadOverview();
+}
+
+// My Patients
+async function loadMyPatients() {
+  if (!currentDoctor) return;
+  const { data } = await db.from('doctor_access_requests')
+    .select('*, children(*)')
+    .eq('doctor_id', currentDoctor.id).eq('status', 'approved')
+    .order('responded_at', { ascending: false });
+  const grid = document.getElementById('patientsGrid');
+  if (!data || !data.length) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="icon">👥</div><h3>No approved patients</h3><p>Search by Child ID and request access to view records</p><br><button class="btn btn-primary" onclick="showSection(\'search\')">Search Patient</button></div>';
+    return;
+  }
+  grid.innerHTML = data.map(r => {
+    const c = r.children;
+    return `
+      <div class="child-card" onclick="openPatientDetail('${c.id}')">
+        <div class="child-card-header">
+          <div class="child-avatar ${c.gender || 'male'}">${c.gender === 'female' ? '👧' : '👦'}</div>
+          <div>
+            <div class="child-name">${c.full_name}</div>
+            <div class="child-id">${c.child_id}</div>
+          </div>
+        </div>
+        <div class="child-meta">
+          <div class="meta-item"><span class="meta-label">Age</span><span class="meta-value">${calcAge(c.date_of_birth)}</span></div>
+          <div class="meta-item"><span class="meta-label">DOB</span><span class="meta-value">${formatDate(c.date_of_birth)}</span></div>
+          <div class="meta-item"><span class="meta-label">Blood Type</span><span class="meta-value">${c.blood_type || '—'}</span></div>
+          <div class="meta-item"><span class="meta-label">Gender</span><span class="meta-value">${c.gender || '—'}</span></div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function openPatientDetail(childId) {
+  currentPatientChildId = childId;
+  const { data: child } = await db.from('children').select('*').eq('id', childId).single();
+  if (!child) return;
+
+  document.getElementById('detailPatientInfo').innerHTML = `
+    <div style="display:flex;align-items:center;gap:14px">
+      <div class="child-avatar ${child.gender || 'male'}" style="width:52px;height:52px;border-radius:14px;font-size:26px">${child.gender === 'female' ? '👧' : '👦'}</div>
+      <div>
+        <h2>${child.full_name}</h2>
+        <div style="color:var(--cyan);font-family:monospace;font-size:0.875rem">${child.child_id}</div>
+      </div>
+    </div>`;
+
+  document.getElementById('patientInfoGrid').innerHTML = [
+    { label: 'Full Name', value: child.full_name },
+    { label: 'Child ID', value: child.child_id },
+    { label: 'Date of Birth', value: formatDate(child.date_of_birth) },
+    { label: 'Age', value: calcAge(child.date_of_birth) },
+    { label: 'Gender', value: child.gender || '—' },
+    { label: 'Blood Type', value: child.blood_type || '—' },
+    { label: 'Allergies', value: child.allergies || 'None known' },
+    { label: 'Medical Notes', value: child.medical_notes || '—' },
+  ].map(item => `<div class="info-item"><div class="info-label">${item.label}</div><div class="info-value">${item.value}</div></div>`).join('');
+
+  document.querySelectorAll('.section-tab').forEach((t, i) => t.classList.toggle('active', i === 0));
+  ['patientTabInfo','patientTabDocuments','patientTabVaccinations','patientTabNotes'].forEach((id, i) => {
+    document.getElementById(id).style.display = i === 0 ? 'block' : 'none';
+  });
+
+  document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+  document.getElementById('sectionPatientDetail').style.display = 'block';
+  document.getElementById('pageTitle').textContent = child.full_name;
+}
+
+function switchPatientTab(tab) {
+  const tabs = ['info', 'documents', 'vaccinations', 'notes'];
+  const els = ['patientTabInfo', 'patientTabDocuments', 'patientTabVaccinations', 'patientTabNotes'];
+  document.querySelectorAll('.section-tab').forEach((t, i) => t.classList.toggle('active', tabs[i] === tab));
+  els.forEach((id, i) => document.getElementById(id).style.display = tabs[i] === tab ? 'block' : 'none');
+  if (tab === 'documents') loadPatientDocs();
+  if (tab === 'vaccinations') loadPatientVacc();
+  if (tab === 'notes') loadPatientNotes();
+}
+
+async function loadPatientDocs() {
+  const { data } = await db.from('documents').select('*').eq('child_id', currentPatientChildId).order('created_at', { ascending: false });
+  const el = document.getElementById('patientDocsList');
+  if (!data || !data.length) { el.innerHTML = '<div class="empty-state"><div class="icon">📁</div><p>No documents uploaded yet</p></div>'; return; }
+  el.innerHTML = data.map(d => `
+    <div class="doc-item">
+      <div class="doc-icon">${getFileIcon(d.file_name)}</div>
+      <div class="doc-info">
+        <div class="doc-name">${d.file_name}</div>
+        <div class="doc-meta">${d.document_type.replace(/_/g, ' ')} · ${formatDate(d.created_at)} · ${formatSize(d.file_size)}</div>
+        ${d.description ? `<div class="doc-meta">${d.description}</div>` : ''}
+      </div>
+      <div class="doc-actions">
+        <a href="${d.file_url}" target="_blank" class="btn btn-ghost btn-sm btn-icon">↗</a>
+      </div>
+    </div>`).join('');
+}
+
+async function loadPatientVacc() {
+  const { data } = await db.from('vaccinations').select('*').eq('child_id', currentPatientChildId).order('date_administered', { ascending: false });
+  const tbody = document.getElementById('patientVaccTableBody');
+  if (!data || !data.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:32px">No vaccinations recorded</td></tr>'; return; }
+  tbody.innerHTML = data.map(v => `
+    <tr>
+      <td><span class="vacc-badge">💉</span> <strong>${v.vaccine_name}</strong></td>
+      <td>${formatDate(v.date_administered)}</td>
+      <td>Dose ${v.dose_number || 1}</td>
+      <td>${v.administered_by || '—'}</td>
+      <td>${v.next_due_date ? `<span style="color:var(--yellow)">${formatDate(v.next_due_date)}</span>` : '—'}</td>
+    </tr>`).join('');
+}
+
+async function loadPatientNotes() {
+  const { data } = await db.from('doctor_notes').select('*, doctors(*, users(full_name))').eq('child_id', currentPatientChildId).order('created_at', { ascending: false });
+  const el = document.getElementById('patientNotesList');
+  if (!data || !data.length) { el.innerHTML = '<div class="empty-state"><div class="icon">📝</div><p>No notes yet</p></div>'; return; }
+  el.innerHTML = data.map(n => `
+    <div class="note-item">
+      <div class="note-header">
+        <div>
+          <div class="note-title">${n.title}</div>
+          <span class="badge badge-info" style="margin-top:4px">${n.note_type}</span>
+        </div>
+        <div class="note-meta">Dr. ${n.doctors?.users?.full_name || 'Unknown'} · ${formatDate(n.created_at)}</div>
+      </div>
+      <div class="note-content" style="margin-top:10px">${n.content}</div>
+    </div>`).join('');
+}
+
+async function handleAddNote() {
+  const btn = document.getElementById('addNoteBtn');
+  const errEl = document.getElementById('addNoteError');
+  errEl.style.display = 'none';
+  const title = document.getElementById('noteTitle').value.trim();
+  const content = document.getElementById('noteContent').value.trim();
+  if (!title || !content) { errEl.textContent = 'Title and content are required.'; errEl.style.display = 'flex'; return; }
+  setLoading(btn, true);
+  const { error } = await db.from('doctor_notes').insert({
+    child_id: currentPatientChildId,
+    doctor_id: currentDoctor.id,
+    note_type: document.getElementById('noteType').value,
+    title,
+    content,
+  });
+  setLoading(btn, false);
+  if (error) { errEl.textContent = error.message; errEl.style.display = 'flex'; return; }
+  closeModal('addNoteModal');
+  showToast('Note saved!', 'success');
+  document.getElementById('noteTitle').value = '';
+  document.getElementById('noteContent').value = '';
+  loadPatientNotes();
+}
+
+async function handleAddVacc() {
+  const btn = document.getElementById('addVaccBtn');
+  const errEl = document.getElementById('addVaccError');
+  errEl.style.display = 'none';
+  const name = document.getElementById('vaccName').value.trim();
+  const date = document.getElementById('vaccDate').value;
+  if (!name || !date) { errEl.textContent = 'Vaccine name and date are required.'; errEl.style.display = 'flex'; return; }
+  setLoading(btn, true);
+  const { error } = await db.from('vaccinations').insert({
+    child_id: currentPatientChildId,
+    added_by: currentUser.id,
+    vaccine_name: name,
+    date_administered: date,
+    dose_number: parseInt(document.getElementById('vaccDose').value) || 1,
+    administered_by: document.getElementById('vaccAdminBy').value.trim() || null,
+    batch_number: document.getElementById('vaccBatch').value.trim() || null,
+    next_due_date: document.getElementById('vaccNextDue').value || null,
+    notes: document.getElementById('vaccNotes').value.trim() || null,
+  });
+  setLoading(btn, false);
+  if (error) { errEl.textContent = error.message; errEl.style.display = 'flex'; return; }
+  closeModal('addVaccModal');
+  showToast('Vaccination recorded!', 'success');
+  ['vaccName','vaccDate','vaccAdminBy','vaccBatch','vaccNextDue','vaccNotes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('vaccDose').value = '1';
+  loadPatientVacc();
+}
+
+// My Requests
+async function loadMyRequests() {
+  if (!currentDoctor) return;
+  const { data } = await db.from('doctor_access_requests')
+    .select('*, children(full_name, child_id)')
+    .eq('doctor_id', currentDoctor.id)
+    .order('requested_at', { ascending: false });
+  const tbody = document.getElementById('myRequestsTableBody');
+  if (!data || !data.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:32px">No access requests made yet</td></tr>'; return;
+  }
+  tbody.innerHTML = data.map(r => `
+    <tr>
+      <td>
+        <strong>${r.children?.full_name || '—'}</strong><br>
+        <span style="font-size:0.75rem;color:var(--cyan);font-family:monospace">${r.children?.child_id || ''}</span>
+      </td>
+      <td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.reason || '—'}</td>
+      <td>${formatDate(r.requested_at)}</td>
+      <td><span class="badge badge-${r.status}">${r.status}</span></td>
+      <td>${r.responded_at ? formatDate(r.responded_at) : '—'}</td>
+    </tr>`).join('');
+}
+</script>
+</body>
+</html>
