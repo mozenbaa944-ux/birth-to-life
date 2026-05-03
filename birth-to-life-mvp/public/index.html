@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Birth-to-Life — Child Medical Records</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .landing {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .nav {
+      padding: 20px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-secondary);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; }
+    .nav-logo .icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--cyan), #0066ff);
+      border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px;
+    }
+    .nav-logo span { color: var(--cyan); font-size: 1.2rem; font-weight: 700; }
+    .nav-actions { display: flex; gap: 12px; }
+    .hero {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 40px;
+      text-align: center;
+      background: radial-gradient(ellipse at 50% 40%, rgba(0,212,255,0.06) 0%, transparent 70%);
+    }
+    .hero-content { max-width: 640px; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; background: var(--cyan-glow);
+      border: 1px solid rgba(0,212,255,0.25); border-radius: 20px;
+      font-size: 0.8rem; color: var(--cyan); font-weight: 600; margin-bottom: 24px;
+    }
+    .hero h1 { font-size: 3.2rem; font-weight: 700; line-height: 1.15; margin-bottom: 20px; }
+    .hero h1 span { color: var(--cyan); }
+    .hero p { font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 36px; line-height: 1.7; }
+    .hero-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .btn-hero {
+      padding: 14px 28px; border-radius: var(--radius-sm); font-size: 1rem;
+      font-weight: 600; cursor: pointer; border: none; transition: var(--transition);
+      text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-hero-parent { background: var(--cyan); color: var(--bg-primary); }
+    .btn-hero-parent:hover { background: var(--cyan-dim); transform: translateY(-2px); box-shadow: var(--shadow-cyan); }
+    .btn-hero-doctor { background: transparent; color: var(--text-primary); border: 1px solid var(--border-light); }
+    .btn-hero-doctor:hover { background: var(--bg-card); transform: translateY(-2px); }
+    .features {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+      padding: 0 40px 60px; max-width: 1000px; margin: 0 auto; width: 100%;
+    }
+    .feature-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+    }
+    .feature-icon { font-size: 28px; margin-bottom: 12px; }
+    .feature-card h3 { margin-bottom: 8px; font-size: 1rem; }
+    .feature-card p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+    @media (max-width: 700px) {
+      .features { grid-template-columns: 1fr; padding: 0 20px 40px; }
+      .hero h1 { font-size: 2.2rem; }
+      .nav { padding: 16px 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="landing">
+    <nav class="nav">
+      <div class="nav-logo">
+        <div class="icon">🏥</div>
+        <span>Birth-to-Life</span>
+      </div>
+      <div class="nav-actions">
+        <a href="parent.html" class="btn btn-ghost btn-sm">Parent Login</a>
+        <a href="doctor.html" class="btn btn-secondary btn-sm">Doctor Login</a>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <div class="hero-content">
+        <div class="hero-badge">🔒 Secure Medical Records</div>
+        <h1>Your Child's Health<br><span>From Birth to Life</span></h1>
+        <p>A secure digital platform for parents to manage children's medical records, and doctors to access approved health histories — all in one place.</p>
+        <div class="hero-actions">
+          <a href="parent.html" class="btn-hero btn-hero-parent" onclick="window.location.href='parent.html';return false;">👨‍👩‍👧 Parent Portal</a>
+          <a href="doctor.html" class="btn-hero btn-hero-doctor" onclick="window.location.href='doctor.html';return false;">🩺 Doctor Portal</a>
+        </div>
+      </div>
+    </section>
+
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon">📁</div>
+        <h3>Complete Medical History</h3>
+        <p>Store vaccination records, medical documents, and health notes securely in the cloud for lifetime access.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔐</div>
+        <h3>Parent-Controlled Access</h3>
+        <p>You decide which doctors can view your child's records. Approve or reject access requests with one click.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💊</div>
+        <h3>Vaccination Tracker</h3>
+        <p>Track every vaccine administered, including dose numbers, batch info, and upcoming due dates.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // Silently redirect already-logged-in users; never block navigation on failure
+    (async () => {
+      try {
+        const { createClient } = supabase;
+        const db = createClient(
+          'https://tirxwwkzfdabihcimdmm.supabase.co',
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpcnh3d2t6ZmRhYmloY2ltZG1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MDczNDAsImV4cCI6MjA5MzM4MzM0MH0.NUW8f2TQAXHlSSNf-VdnLPXnhiq5DZX22nYz1o_j3yw'
+        );
+        const { data: { user } } = await db.auth.getUser();
+        if (user) {
+          const { data } = await db.from('users').select('role').eq('id', user.id).single();
+          if (data?.role === 'parent') window.location.href = 'parent.html';
+          else if (data?.role === 'doctor') window.location.href = 'doctor.html';
+        }
+      } catch (_) {}
+    })();
+  </script>
+</body>
+</html>
