@@ -1,141 +1,1630 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Birth-to-Life — Child Medical Records</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Birth-to-Life — Lifelong Health Records</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
   <style>
-    .landing {
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0a0f1e;
+      --bg2:         #0d1428;
+      --bg3:         #111930;
+      --cyan:        #00d4ff;
+      --cyan-dim:    rgba(0, 212, 255, 0.15);
+      --cyan-glow:   rgba(0, 212, 255, 0.35);
+      --cyan-soft:   rgba(0, 212, 255, 0.08);
+      --purple:      #7b5ea7;
+      --purple-dim:  rgba(123, 94, 167, 0.2);
+      --white:       #ffffff;
+      --text:        rgba(255,255,255,0.88);
+      --muted:       rgba(255,255,255,0.45);
+      --border:      rgba(0, 212, 255, 0.18);
+      --border-dim:  rgba(255,255,255,0.07);
+      --glass:       rgba(255,255,255,0.04);
+      --glass-hover: rgba(255,255,255,0.07);
+      --shadow-neon: 0 0 24px rgba(0,212,255,0.25), 0 0 60px rgba(0,212,255,0.10);
+      --shadow-card: 0 8px 40px rgba(0,0,0,0.4);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* ─── BACKGROUND CANVAS ─── */
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.18;
+      animation: orbFloat linear infinite;
+    }
+    .orb-1 { width: 700px; height: 700px; background: #00d4ff; top: -20%; left: -15%; animation-duration: 25s; }
+    .orb-2 { width: 500px; height: 500px; background: #7b5ea7; top: 30%; right: -10%; animation-duration: 32s; animation-delay: -8s; }
+    .orb-3 { width: 400px; height: 400px; background: #00d4ff; bottom: -10%; left: 30%; animation-duration: 28s; animation-delay: -14s; }
+    .grid-lines {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+      background-size: 64px 64px;
+    }
+    @keyframes orbFloat {
+      0%   { transform: translate(0, 0) scale(1); }
+      33%  { transform: translate(40px, -30px) scale(1.05); }
+      66%  { transform: translate(-30px, 40px) scale(0.95); }
+      100% { transform: translate(0, 0) scale(1); }
+    }
+
+    /* ─── UTILITIES ─── */
+    .container { max-width: 1160px; margin: 0 auto; padding: 0 36px; position: relative; z-index: 1; }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      background: var(--cyan-soft);
+      border: 1px solid var(--border);
+      padding: 6px 16px;
+      border-radius: 100px;
+      margin-bottom: 22px;
+    }
+    .chip-pulse {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 8px var(--cyan);
+      animation: blink 1.6s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      line-height: 1.12;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+    .section-title .grad {
+      background: linear-gradient(90deg, var(--cyan), #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .section-sub { font-size: 1rem; color: var(--muted); line-height: 1.8; max-width: 560px; }
+    .neon-line { width: 50px; height: 2px; background: var(--cyan); box-shadow: 0 0 12px var(--cyan); border-radius: 2px; margin: 20px 0 24px; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 9px;
+      padding: 14px 30px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.875rem; font-weight: 600;
+      border-radius: 8px; cursor: pointer; border: none;
+      text-decoration: none;
+      transition: all 0.25s;
+      letter-spacing: 0.01em;
+    }
+    .btn-neon {
+      background: var(--cyan);
+      color: #050810;
+      box-shadow: 0 0 20px rgba(0,212,255,0.5), 0 4px 16px rgba(0,0,0,0.3);
+    }
+    .btn-neon:hover { background: #33deff; box-shadow: 0 0 36px rgba(0,212,255,0.7), 0 6px 24px rgba(0,0,0,0.3); transform: translateY(-2px); }
+    .btn-glass {
+      background: var(--glass);
+      color: var(--cyan);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+    }
+    .btn-glass:hover { background: var(--cyan-dim); border-color: var(--cyan); box-shadow: var(--shadow-neon); transform: translateY(-2px); }
+
+    /* glass card mixin */
+    .glass {
+      background: var(--glass);
+      border: 1px solid var(--border-dim);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 20px;
+    }
+    .glass:hover { background: var(--glass-hover); border-color: var(--border); }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+      height: 68px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px;
+      background: rgba(10,15,30,0.7);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-dim);
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    nav.scrolled { border-color: var(--border); box-shadow: 0 4px 32px rgba(0,0,0,0.5); }
+
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(0,212,255,0.05));
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 16px rgba(0,212,255,0.2);
+    }
+    .logo-icon svg { width: 18px; height: 18px; }
+    .logo-name { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; color: #fff; }
+    .logo-name span { color: var(--cyan); text-shadow: 0 0 12px rgba(0,212,255,0.6); }
+
+    .nav-links { display: flex; gap: 36px; list-style: none; }
+    .nav-links a {
+      font-size: 0.84rem; font-weight: 500; color: var(--muted);
+      text-decoration: none; transition: color 0.2s;
+      letter-spacing: 0.01em;
+    }
+    .nav-links a:hover { color: var(--cyan); text-shadow: 0 0 10px rgba(0,212,255,0.5); }
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
+
+    .burger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
+    .burger span { width: 22px; height: 2px; background: var(--muted); border-radius: 2px; transition: 0.3s; display: block; }
+
+    /* ─── HERO ─── */
+    #hero {
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      padding: 120px 0 80px;
+      display: flex; align-items: center;
+      position: relative;
     }
-    .nav {
-      padding: 20px 40px;
-      display: flex;
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
       align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--border);
-      background: var(--bg-secondary);
+      width: 100%;
     }
-    .nav-logo { display: flex; align-items: center; gap: 10px; }
-    .nav-logo .icon {
-      width: 36px; height: 36px;
-      background: linear-gradient(135deg, var(--cyan), #0066ff);
-      border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px;
-    }
-    .nav-logo span { color: var(--cyan); font-size: 1.2rem; font-weight: 700; }
-    .nav-actions { display: flex; gap: 12px; }
-    .hero {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 60px 40px;
-      text-align: center;
-      background: radial-gradient(ellipse at 50% 40%, rgba(0,212,255,0.06) 0%, transparent 70%);
-    }
-    .hero-content { max-width: 640px; }
     .hero-badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 6px 14px; background: var(--cyan-glow);
-      border: 1px solid rgba(0,212,255,0.25); border-radius: 20px;
-      font-size: 0.8rem; color: var(--cyan); font-weight: 600; margin-bottom: 24px;
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(0,212,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 7px 16px 7px 10px;
+      margin-bottom: 28px;
     }
-    .hero h1 { font-size: 3.2rem; font-weight: 700; line-height: 1.15; margin-bottom: 20px; }
-    .hero h1 span { color: var(--cyan); }
-    .hero p { font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 36px; line-height: 1.7; }
-    .hero-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
-    .btn-hero {
-      padding: 14px 28px; border-radius: var(--radius-sm); font-size: 1rem;
-      font-weight: 600; cursor: pointer; border: none; transition: var(--transition);
-      text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+    .hero-badge-icon {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--cyan); display: flex; align-items: center;
+      justify-content: center; font-size: 0.7rem; font-weight: 700; color: #050810;
     }
-    .btn-hero-parent { background: var(--cyan); color: var(--bg-primary); }
-    .btn-hero-parent:hover { background: var(--cyan-dim); transform: translateY(-2px); box-shadow: var(--shadow-cyan); }
-    .btn-hero-doctor { background: transparent; color: var(--text-primary); border: 1px solid var(--border-light); }
-    .btn-hero-doctor:hover { background: var(--bg-card); transform: translateY(-2px); }
-    .features {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
-      padding: 0 40px 60px; max-width: 1000px; margin: 0 auto; width: 100%;
+    .hero-badge-text { font-size: 0.78rem; font-weight: 500; color: var(--cyan); }
+
+    .hero-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.8rem, 5.5vw, 4.4rem);
+      font-weight: 800; line-height: 1.06;
+      color: #fff;
+      margin-bottom: 24px;
+      letter-spacing: -0.02em;
     }
-    .feature-card {
-      background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 24px;
+    .hero-title .grad {
+      background: linear-gradient(90deg, var(--cyan) 0%, #a78bfa 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
-    .feature-icon { font-size: 28px; margin-bottom: 12px; }
-    .feature-card h3 { margin-bottom: 8px; font-size: 1rem; }
-    .feature-card p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
-    @media (max-width: 700px) {
-      .features { grid-template-columns: 1fr; padding: 0 20px 40px; }
-      .hero h1 { font-size: 2.2rem; }
-      .nav { padding: 16px 20px; }
+
+    .hero-sub { font-size: 1.05rem; color: var(--muted); line-height: 1.8; max-width: 480px; margin-bottom: 40px; }
+
+    .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 52px; }
+
+    .hero-trust { display: flex; gap: 28px; flex-wrap: wrap; }
+    .ht-item { display: flex; align-items: center; gap: 7px; font-size: 0.78rem; color: var(--muted); font-weight: 500; }
+    .ht-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 6px var(--cyan); }
+
+    /* hero UI mockup */
+    .hero-mockup { position: relative; }
+    .mockup-card {
+      background: rgba(13,20,40,0.85);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 28px;
+      backdrop-filter: blur(30px);
+      box-shadow: var(--shadow-card), inset 0 1px 0 rgba(0,212,255,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    .mockup-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+      opacity: 0.6;
+    }
+    .mc-glow {
+      position: absolute; width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(0,212,255,0.12), transparent 70%);
+      top: -50px; right: -50px; pointer-events: none;
+    }
+    .mc-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 24px; position: relative;
+    }
+    .mc-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: linear-gradient(135deg, rgba(0,212,255,0.25), rgba(123,94,167,0.25));
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+      box-shadow: 0 0 16px rgba(0,212,255,0.15);
+    }
+    .mc-name { font-weight: 700; font-size: 0.92rem; color: #fff; }
+    .mc-id { font-size: 0.73rem; color: var(--muted); margin-top: 2px; font-family: 'Inter', monospace; }
+    .mc-status {
+      margin-left: auto;
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(0,212,255,0.1);
+      border: 1px solid rgba(0,212,255,0.25);
+      border-radius: 100px;
+      padding: 4px 10px;
+      font-size: 0.7rem; font-weight: 600; color: var(--cyan);
+    }
+    .mc-status-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 6px var(--cyan); animation: blink 1.6s infinite; }
+
+    .mc-records { display: flex; flex-direction: column; gap: 10px; }
+    .mc-record {
+      display: flex; align-items: center; gap: 12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 12px 14px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .mc-record.active {
+      background: rgba(0,212,255,0.06);
+      border-color: rgba(0,212,255,0.2);
+      box-shadow: 0 0 20px rgba(0,212,255,0.06);
+    }
+    .mr-icon {
+      width: 34px; height: 34px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.95rem; flex-shrink: 0;
+    }
+    .ic1 { background: rgba(0,212,255,0.12); }
+    .ic2 { background: rgba(123,94,167,0.2); }
+    .ic3 { background: rgba(0,255,136,0.12); }
+    .ic4 { background: rgba(251,191,36,0.12); }
+    .mr-label { font-size: 0.82rem; font-weight: 600; color: #fff; }
+    .mr-date { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+    .mr-badge {
+      margin-left: auto; font-size: 0.68rem; font-weight: 700;
+      padding: 3px 9px; border-radius: 100px;
+    }
+    .mb-cyan { background: rgba(0,212,255,0.12); color: var(--cyan); border: 1px solid rgba(0,212,255,0.2); }
+    .mb-purple { background: rgba(167,139,250,0.12); color: #a78bfa; border: 1px solid rgba(167,139,250,0.2); }
+    .mb-muted { background: rgba(255,255,255,0.06); color: var(--muted); border: 1px solid rgba(255,255,255,0.1); }
+
+    /* floating mini cards */
+    .float-card {
+      position: absolute;
+      background: rgba(13,20,40,0.9);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 18px;
+      backdrop-filter: blur(24px);
+      display: flex; align-items: center; gap: 12px;
+      box-shadow: var(--shadow-card), 0 0 20px rgba(0,212,255,0.1);
+    }
+    .float-card-tl { top: -22px; left: -22px; }
+    .float-card-br { bottom: -22px; right: -22px; }
+    .fc-emoji { font-size: 1.6rem; }
+    .fc-val { font-family: 'Syne', sans-serif; font-size: 1.35rem; font-weight: 800; color: #fff; line-height: 1; }
+    .fc-lbl { font-size: 0.7rem; color: var(--muted); margin-top: 3px; }
+
+    /* ─── STATS ─── */
+    #stats { padding: 0; position: relative; z-index: 1; }
+    .stats-band {
+      background: linear-gradient(90deg, rgba(0,212,255,0.05) 0%, rgba(123,94,167,0.05) 100%);
+      border-top: 1px solid var(--border-dim);
+      border-bottom: 1px solid var(--border-dim);
+      padding: 44px 0;
+    }
+    .stats-row {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      divide: var(--border-dim);
+    }
+    .stat-item {
+      text-align: center; padding: 16px 20px;
+      border-right: 1px solid var(--border-dim);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.4rem; font-weight: 800;
+      background: linear-gradient(90deg, var(--cyan), #a78bfa);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      line-height: 1; margin-bottom: 8px;
+    }
+    .stat-lbl { font-size: 0.82rem; color: var(--muted); }
+
+    /* ─── SECTION SPACING ─── */
+    .section { padding: 110px 0; position: relative; z-index: 1; }
+
+    /* ─── HOW IT WORKS ─── */
+    .hiw-head { text-align: center; margin-bottom: 72px; }
+    .hiw-head .neon-line { margin: 20px auto 24px; }
+    .hiw-head .section-sub { margin: 0 auto; text-align: center; }
+
+    .steps-row {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 24px; position: relative;
+    }
+    .steps-connector {
+      position: absolute; top: 48px;
+      left: calc(12.5% + 22px); right: calc(12.5% + 22px);
+      height: 1px;
+      background: linear-gradient(90deg, var(--cyan), rgba(167,139,250,0.6), var(--cyan));
+      box-shadow: 0 0 10px rgba(0,212,255,0.3);
+      z-index: 0;
+    }
+    .step-card {
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center; position: relative; z-index: 1;
+      background: var(--glass);
+      border: 1px solid var(--border-dim);
+      border-radius: 20px;
+      padding: 36px 20px 28px;
+      transition: border-color 0.3s, box-shadow 0.3s, background 0.3s, transform 0.3s;
+    }
+    .step-card:hover {
+      border-color: var(--border);
+      box-shadow: 0 0 32px rgba(0,212,255,0.12), var(--shadow-card);
+      background: var(--glass-hover);
+      transform: translateY(-6px);
+    }
+    .step-num-ring {
+      width: 52px; height: 52px; border-radius: 50%;
+      border: 2px solid var(--cyan);
+      box-shadow: 0 0 20px rgba(0,212,255,0.35), inset 0 0 12px rgba(0,212,255,0.08);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 800;
+      color: var(--cyan); margin-bottom: 22px;
+      background: rgba(0,212,255,0.06);
+      position: relative; z-index: 2;
+    }
+    .step-icon-box {
+      width: 56px; height: 56px; border-radius: 14px;
+      background: rgba(0,212,255,0.08);
+      border: 1px solid rgba(0,212,255,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.7rem; margin-bottom: 18px;
+    }
+    .step-title { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 10px; }
+    .step-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.7; }
+
+    /* ─── PARTICIPANTS ─── */
+    #participants { background: linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%); }
+    .participants-head { text-align: center; margin-bottom: 64px; }
+    .participants-head .neon-line { margin: 20px auto 24px; }
+    .participants-head .section-sub { margin: 0 auto; text-align: center; }
+
+    .p-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+    .p-card {
+      background: var(--glass);
+      border: 1px solid var(--border-dim);
+      border-radius: 24px;
+      padding: 36px;
+      backdrop-filter: blur(20px);
+      transition: border-color 0.3s, box-shadow 0.3s, background 0.3s, transform 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .p-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .p-card:hover {
+      border-color: var(--border);
+      background: var(--glass-hover);
+      box-shadow: 0 0 50px rgba(0,212,255,0.1), var(--shadow-card);
+      transform: translateY(-6px);
+    }
+    .p-card:hover::after { opacity: 1; }
+    .p-glow {
+      position: absolute; width: 180px; height: 180px;
+      border-radius: 50%;
+      opacity: 0; transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .p-card:hover .p-glow { opacity: 1; }
+    .pg-cyan { background: radial-gradient(circle, rgba(0,212,255,0.12), transparent 70%); top: -40px; right: -40px; }
+    .pg-purple { background: radial-gradient(circle, rgba(123,94,167,0.15), transparent 70%); top: -40px; right: -40px; }
+    .pg-pink { background: radial-gradient(circle, rgba(244,114,182,0.12), transparent 70%); top: -40px; right: -40px; }
+    .pg-green { background: radial-gradient(circle, rgba(52,211,153,0.12), transparent 70%); top: -40px; right: -40px; }
+
+    .p-icon-row { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; position: relative; }
+    .p-icon {
+      width: 58px; height: 58px; border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.9rem;
+      border: 1px solid;
+    }
+    .pi-cyan  { background: rgba(0,212,255,0.08);   border-color: rgba(0,212,255,0.2); }
+    .pi-blue  { background: rgba(96,165,250,0.08);  border-color: rgba(96,165,250,0.2); }
+    .pi-pink  { background: rgba(244,114,182,0.08); border-color: rgba(244,114,182,0.2); }
+    .pi-green { background: rgba(52,211,153,0.08);  border-color: rgba(52,211,153,0.2); }
+
+    .p-card-title { font-family: 'Syne', sans-serif; font-size: 1.25rem; font-weight: 800; color: #fff; margin-bottom: 6px; }
+    .p-card-sub { font-size: 0.84rem; color: var(--muted); margin-bottom: 26px; line-height: 1.7; }
+    .p-features { list-style: none; display: flex; flex-direction: column; gap: 9px; margin-bottom: 28px; }
+    .p-features li { display: flex; align-items: flex-start; gap: 10px; font-size: 0.83rem; color: rgba(255,255,255,0.7); }
+    .pf-check {
+      width: 17px; height: 17px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.6rem; font-weight: 700; flex-shrink: 0; margin-top: 2px;
+    }
+    .pc-cyan   { background: rgba(0,212,255,0.15); color: var(--cyan); }
+    .pc-blue   { background: rgba(96,165,250,0.15); color: #60a5fa; }
+    .pc-pink   { background: rgba(244,114,182,0.15); color: #f472b6; }
+    .pc-green  { background: rgba(52,211,153,0.15); color: #34d399; }
+    .p-price-line {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 22px;
+      border-top: 1px solid var(--border-dim);
+    }
+    .p-price-val {
+      font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800;
+    }
+    .p-price-val.cyan { color: var(--cyan); text-shadow: 0 0 16px rgba(0,212,255,0.4); }
+    .p-price-val.custom { font-size: 1.2rem; color: var(--muted); }
+    .p-price-period { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+
+    /* ─── FEATURES ─── */
+    #features { background: var(--bg); }
+    .features-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+    .features-text { }
+    .features-list { display: flex; flex-direction: column; gap: 22px; margin-top: 40px; }
+    .feat-item {
+      display: flex; gap: 16px; align-items: flex-start;
+      padding: 20px;
+      background: var(--glass);
+      border: 1px solid var(--border-dim);
+      border-radius: 14px;
+      transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+    }
+    .feat-item:hover {
+      border-color: var(--border);
+      box-shadow: 0 0 24px rgba(0,212,255,0.08);
+      background: var(--glass-hover);
+    }
+    .feat-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; flex-shrink: 0;
+    }
+    .feat-title { font-weight: 700; font-size: 0.92rem; color: #fff; margin-bottom: 5px; }
+    .feat-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.65; }
+
+    /* dashboard visual */
+    .dash-card {
+      background: rgba(8,12,24,0.9);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-card), 0 0 40px rgba(0,212,255,0.08);
+    }
+    .dash-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan), rgba(167,139,250,0.8), transparent);
+    }
+    .dash-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .dash-title { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; color: #fff; }
+    .dash-live {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.25);
+      border-radius: 100px; padding: 4px 10px;
+      font-size: 0.7rem; font-weight: 600; color: #34d399;
+    }
+    .dash-live-dot { width: 5px; height: 5px; border-radius: 50%; background: #34d399; box-shadow: 0 0 6px #34d399; animation: blink 1.4s infinite; }
+    .big-metric { margin-bottom: 28px; }
+    .bm-label { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+    .bm-val {
+      font-family: 'Syne', sans-serif; font-size: 3.2rem; font-weight: 800;
+      background: linear-gradient(90deg, var(--cyan), #a78bfa);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      line-height: 1;
+    }
+    .bm-trend { display: inline-flex; align-items: center; gap: 5px; font-size: 0.78rem; color: #34d399; font-weight: 600; margin-top: 8px; }
+    .metric-bars { display: flex; flex-direction: column; gap: 16px; }
+    .mb-row { }
+    .mb-top { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--muted); margin-bottom: 7px; }
+    .mb-pct { color: var(--cyan); font-weight: 600; }
+    .mb-track { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+    .mb-fill {
+      height: 100%; border-radius: 3px;
+      background: linear-gradient(90deg, var(--cyan), rgba(167,139,250,0.8));
+      box-shadow: 0 0 8px rgba(0,212,255,0.4);
+    }
+    .dash-floats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+    .df-item {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border-dim);
+      border-radius: 12px; padding: 14px;
+    }
+    .df-icon { font-size: 1.3rem; margin-bottom: 8px; display: block; }
+    .df-val { font-family: 'Syne', sans-serif; font-size: 1.25rem; font-weight: 800; color: #fff; line-height: 1; }
+    .df-lbl { font-size: 0.7rem; color: var(--muted); margin-top: 4px; }
+
+    /* ─── PRICING ─── */
+    #pricing { background: linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%); }
+    .pricing-head { text-align: center; margin-bottom: 64px; }
+    .pricing-head .neon-line { margin: 20px auto 24px; }
+    .pricing-head .section-sub { margin: 0 auto; }
+
+    .pricing-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; align-items: stretch; }
+
+    .price-card {
+      background: var(--glass);
+      border: 1px solid var(--border-dim);
+      border-radius: 22px;
+      padding: 32px 26px;
+      display: flex; flex-direction: column;
+      transition: border-color 0.3s, box-shadow 0.3s, background 0.3s, transform 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .price-card:hover {
+      border-color: var(--border);
+      background: var(--glass-hover);
+      box-shadow: 0 0 40px rgba(0,212,255,0.12), var(--shadow-card);
+      transform: translateY(-6px);
+    }
+    .price-card.featured {
+      border-color: rgba(0,212,255,0.4);
+      background: rgba(0,212,255,0.05);
+      box-shadow: 0 0 40px rgba(0,212,255,0.18), var(--shadow-card);
+    }
+    .price-card.featured:hover {
+      border-color: var(--cyan);
+      box-shadow: 0 0 60px rgba(0,212,255,0.28), var(--shadow-card);
+      transform: translateY(-8px);
+    }
+    .price-card.featured::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    }
+    .price-popular-badge {
+      position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+      background: linear-gradient(90deg, var(--cyan), #a78bfa);
+      color: #050810; font-size: 0.68rem; font-weight: 800;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 5px 16px; border-radius: 100px;
+      white-space: nowrap;
+    }
+    .price-icon { font-size: 2rem; margin-bottom: 16px; }
+    .price-plan { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .price-for { font-size: 0.76rem; color: var(--muted); margin-bottom: 22px; }
+    .price-amount-row { display: flex; align-items: flex-end; gap: 4px; margin-bottom: 4px; }
+    .price-sym { font-size: 1.3rem; font-weight: 700; color: var(--cyan); padding-bottom: 5px; }
+    .price-main {
+      font-family: 'Syne', sans-serif; font-size: 2.8rem; font-weight: 800;
+      line-height: 1; color: #fff;
+    }
+    .price-card.featured .price-main { color: var(--cyan); text-shadow: 0 0 24px rgba(0,212,255,0.4); }
+    .price-main.custom { font-size: 1.6rem; color: var(--muted); }
+    .price-period { font-size: 0.78rem; color: var(--muted); padding-bottom: 6px; }
+    .price-caption { font-size: 0.75rem; color: var(--muted); margin-bottom: 22px; }
+    .price-sep { height: 1px; background: var(--border-dim); margin-bottom: 20px; }
+    .price-feats { list-style: none; display: flex; flex-direction: column; gap: 9px; margin-bottom: auto; }
+    .price-feats li {
+      display: flex; align-items: flex-start; gap: 9px;
+      font-size: 0.82rem; color: rgba(255,255,255,0.65);
+    }
+    .pfc { color: var(--cyan); font-weight: 700; font-size: 0.85rem; flex-shrink: 0; margin-top: 1px; }
+    .price-btn-wrap { margin-top: 26px; }
+    .price-btn-wrap .btn { width: 100%; justify-content: center; }
+    .price-note {
+      text-align: center; margin-top: 36px;
+      font-size: 0.8rem; color: var(--muted);
+    }
+    .price-note a { color: var(--cyan); text-decoration: none; }
+
+    /* ─── SECURITY ─── */
+    #security {
+      background: var(--bg);
+      padding: 80px 0;
+    }
+    .sec-inner { display: grid; grid-template-columns: 1fr 2fr; gap: 64px; align-items: center; }
+    .sec-text .section-sub { margin-top: 8px; }
+    .sec-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+    .sec-badge {
+      background: var(--glass);
+      border: 1px solid var(--border-dim);
+      border-radius: 18px;
+      padding: 24px 18px;
+      text-align: center;
+      transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
+    }
+    .sec-badge:hover {
+      border-color: var(--border);
+      background: var(--glass-hover);
+      box-shadow: 0 0 28px rgba(0,212,255,0.1);
+    }
+    .sec-icon { font-size: 1.9rem; display: block; margin-bottom: 12px; }
+    .sec-name { font-size: 0.88rem; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .sec-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.6; }
+
+    /* ─── WAITLIST ─── */
+    #waitlist { background: var(--bg2); }
+    .wl-inner { max-width: 780px; margin: 0 auto; text-align: center; }
+    .wl-inner .section-sub { margin: 0 auto 48px; }
+    .wl-inner .neon-line { margin: 20px auto 24px; }
+
+    .wl-box {
+      background: rgba(8,12,28,0.85);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 52px 48px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-card), 0 0 60px rgba(0,212,255,0.08);
+    }
+    .wl-box::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan), rgba(167,139,250,0.8), var(--cyan), transparent);
+    }
+    .wl-glow-tl {
+      position: absolute; width: 300px; height: 300px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,212,255,0.12), transparent 70%);
+      top: -100px; left: -100px; pointer-events: none;
+    }
+    .wl-glow-br {
+      position: absolute; width: 300px; height: 300px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(123,94,167,0.12), transparent 70%);
+      bottom: -100px; right: -100px; pointer-events: none;
+    }
+    .wl-box-content { position: relative; z-index: 1; }
+    .wl-title { font-family: 'Syne', sans-serif; font-size: 1.9rem; font-weight: 800; color: #fff; margin-bottom: 10px; }
+    .wl-sub { font-size: 0.92rem; color: var(--muted); margin-bottom: 38px; }
+
+    .wl-form { display: flex; flex-direction: column; gap: 14px; }
+    .wl-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .wl-field { display: flex; flex-direction: column; gap: 7px; text-align: left; }
+    .wl-field label {
+      font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+    }
+    .wl-field input,
+    .wl-field select {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 13px 16px;
+      font-size: 0.88rem;
+      font-family: 'Inter', sans-serif;
+      color: #fff;
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+      appearance: none;
+    }
+    .wl-field input::placeholder { color: rgba(255,255,255,0.2); }
+    .wl-field input:focus,
+    .wl-field select:focus {
+      border-color: var(--cyan);
+      background: rgba(0,212,255,0.05);
+      box-shadow: 0 0 0 3px rgba(0,212,255,0.1), 0 0 16px rgba(0,212,255,0.15);
+    }
+    .wl-field select option { background: #0d1428; color: #fff; }
+    .wl-submit { margin-top: 6px; }
+    .wl-submit .btn { width: 100%; justify-content: center; padding: 16px; font-size: 0.95rem; }
+    .wl-privacy { font-size: 0.74rem; color: rgba(255,255,255,0.3); margin-top: 14px; }
+    .wl-privacy a { color: rgba(0,212,255,0.6); text-decoration: underline; }
+
+    .wl-counter {
+      display: flex; align-items: center; justify-content: center;
+      gap: 12px; margin-top: 30px;
+    }
+    .wl-faces { display: flex; }
+    .wl-faces span {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(123,94,167,0.2));
+      border: 2px solid var(--bg2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem;
+      margin-left: -8px;
+      box-shadow: 0 0 8px rgba(0,212,255,0.15);
+    }
+    .wl-faces span:first-child { margin-left: 0; }
+    .wl-count-text { font-size: 0.8rem; color: var(--muted); }
+    .wl-count-text strong { color: var(--cyan); }
+
+    #wl-success { display: none; }
+    .success-emoji { font-size: 3.5rem; display: block; margin-bottom: 16px; }
+    .success-title { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800; color: #fff; margin-bottom: 10px; }
+    .success-body { font-size: 0.92rem; color: var(--muted); }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: #060a14;
+      border-top: 1px solid var(--border-dim);
+      padding: 72px 0 36px;
+      position: relative; z-index: 1;
+    }
+    .foot-inner {
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 52px; margin-bottom: 52px;
+    }
+    .foot-brand { }
+    .foot-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; margin-bottom: 18px; }
+    .foot-tagline { font-size: 0.84rem; color: var(--muted); line-height: 1.75; max-width: 270px; margin-bottom: 22px; }
+    .foot-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+    .fbadge {
+      display: flex; align-items: center; gap: 5px;
+      background: rgba(0,212,255,0.05); border: 1px solid var(--border-dim);
+      border-radius: 6px; padding: 5px 10px;
+      font-size: 0.7rem; color: var(--muted); font-weight: 500;
+    }
+    .fbadge-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 6px var(--cyan); }
+    .foot-col h4 {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.18em;
+      text-transform: uppercase; color: rgba(255,255,255,0.3);
+      margin-bottom: 20px;
+    }
+    .foot-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .foot-col a {
+      font-size: 0.84rem; color: var(--muted); text-decoration: none;
+      transition: color 0.2s;
+    }
+    .foot-col a:hover { color: var(--cyan); text-shadow: 0 0 10px rgba(0,212,255,0.4); }
+    .foot-bottom {
+      padding-top: 28px; border-top: 1px solid var(--border-dim);
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.76rem; color: rgba(255,255,255,0.2);
+    }
+    .foot-bottom a { color: rgba(255,255,255,0.3); text-decoration: none; transition: color 0.2s; }
+    .foot-bottom a:hover { color: var(--cyan); }
+
+    /* ─── ANIMATIONS ─── */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+    .reveal-l { opacity: 0; transform: translateX(-30px); transition: opacity 0.7s, transform 0.7s; }
+    .reveal-l.in { opacity: 1; transform: translateX(0); }
+    .reveal-r { opacity: 0; transform: translateX(30px); transition: opacity 0.7s, transform 0.7s; }
+    .reveal-r.in { opacity: 1; transform: translateX(0); }
+    .d1 { transition-delay: 0.1s; }
+    .d2 { transition-delay: 0.2s; }
+    .d3 { transition-delay: 0.3s; }
+    .d4 { transition-delay: 0.4s; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 1080px) {
+      .pricing-grid { grid-template-columns: 1fr 1fr; }
+      .steps-connector { display: none; }
+      .steps-row { grid-template-columns: 1fr 1fr; gap: 20px; }
+    }
+    @media (max-width: 900px) {
+      nav { padding: 0 20px; }
+      .nav-links, .nav-actions .btn-glass { display: none; }
+      .burger { display: flex; }
+      #hero { padding: 100px 0 60px; min-height: auto; }
+      .hero-grid { grid-template-columns: 1fr; }
+      .hero-mockup { display: none; }
+      .features-grid { grid-template-columns: 1fr; }
+      .dash-card { display: none; }
+      .p-grid { grid-template-columns: 1fr; }
+      .sec-inner { grid-template-columns: 1fr; gap: 36px; }
+      .sec-grid { grid-template-columns: 1fr 1fr; }
+      .foot-inner { grid-template-columns: 1fr 1fr; gap: 36px; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .stats-row .stat-item:nth-child(2) { border-right: none; }
+      .stats-row .stat-item:nth-child(3),
+      .stats-row .stat-item:nth-child(4) { border-top: 1px solid var(--border-dim); }
+      .wl-row { grid-template-columns: 1fr; }
+      .wl-box { padding: 36px 24px; }
+    }
+    @media (max-width: 600px) {
+      .container { padding: 0 20px; }
+      .section { padding: 80px 0; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .steps-row { grid-template-columns: 1fr; }
+      .sec-grid { grid-template-columns: 1fr; }
+      .foot-inner { grid-template-columns: 1fr; }
+      .foot-bottom { flex-direction: column; gap: 12px; text-align: center; }
+      .hero-title { font-size: 2.4rem; }
     }
   </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <div class="landing">
-    <nav class="nav">
-      <div class="nav-logo">
-        <div class="icon">🏥</div>
-        <span>Birth-to-Life</span>
-      </div>
-      <div class="nav-actions">
-        <a href="parent.html" class="btn btn-ghost btn-sm">Parent Login</a>
-        <a href="doctor.html" class="btn btn-secondary btn-sm">Doctor Login</a>
-      </div>
-    </nav>
 
-    <section class="hero">
-      <div class="hero-content">
-        <div class="hero-badge">🔒 Secure Medical Records</div>
-        <h1>Your Child's Health<br><span>From Birth to Life</span></h1>
-        <p>A secure digital platform for parents to manage children's medical records, and doctors to access approved health histories — all in one place.</p>
-        <div class="hero-actions">
-          <a href="parent.html" class="btn-hero btn-hero-parent" onclick="window.location.href='parent.html';return false;">👨‍👩‍👧 Parent Portal</a>
-          <a href="doctor.html" class="btn-hero btn-hero-doctor" onclick="window.location.href='doctor.html';return false;">🩺 Doctor Portal</a>
+<!-- ── BACKGROUND ── -->
+<div id="bg-canvas" aria-hidden="true">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="grid-lines"></div>
+</div>
+
+<!-- ── NAV ── -->
+<nav id="nav">
+  <a class="nav-logo" href="#">
+    <div class="logo-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 4v16M4 12h16" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="12" cy="12" r="9" stroke="#00d4ff" stroke-width="1.5" opacity="0.5"/>
+      </svg>
+    </div>
+    <span class="logo-name">Birth<span>-to-</span>Life</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#how-it-works">How It Works</a></li>
+    <li><a href="#participants">For You</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#security">Security</a></li>
+    <li><a href="#waitlist">Waitlist</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a class="btn btn-glass" href="#pricing">View Pricing</a>
+    <a class="btn btn-neon" href="#waitlist">Join Waitlist</a>
+  </div>
+  <button class="burger" id="burger"><span></span><span></span><span></span></button>
+</nav>
+
+<!-- ── HERO ── -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <div class="hero-badge">
+          <span class="hero-badge-icon">✦</span>
+          <span class="hero-badge-text">Launching 2025 · Join the Waitlist</span>
+        </div>
+        <h1 class="hero-title">
+          Your Child's Health<br/>
+          <span class="grad">Protected for Life</span>
+        </h1>
+        <p class="hero-sub">
+          Birth-to-Life builds a secure, intelligent medical record from the moment of birth — connecting parents, doctors, hospitals, and labs in one seamless preventive health platform.
+        </p>
+        <div class="hero-ctas">
+          <a class="btn btn-neon" href="#waitlist">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            Join the Waitlist
+          </a>
+          <a class="btn btn-glass" href="#how-it-works">See How It Works</a>
+        </div>
+        <div class="hero-trust">
+          <div class="ht-item"><span class="ht-dot"></span> GDPR Compliant</div>
+          <div class="ht-item"><span class="ht-dot"></span> HL7 / FHIR Ready</div>
+          <div class="ht-item"><span class="ht-dot"></span> End-to-End Encrypted</div>
         </div>
       </div>
-    </section>
-
-    <div class="features">
-      <div class="feature-card">
-        <div class="feature-icon">📁</div>
-        <h3>Complete Medical History</h3>
-        <p>Store vaccination records, medical documents, and health notes securely in the cloud for lifetime access.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🔐</div>
-        <h3>Parent-Controlled Access</h3>
-        <p>You decide which doctors can view your child's records. Approve or reject access requests with one click.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">💊</div>
-        <h3>Vaccination Tracker</h3>
-        <p>Track every vaccine administered, including dose numbers, batch info, and upcoming due dates.</p>
+      <div class="hero-mockup">
+        <div class="float-card float-card-tl">
+          <span class="fc-emoji">👶</span>
+          <div>
+            <div class="fc-val">12,480</div>
+            <div class="fc-lbl">Records Created</div>
+          </div>
+        </div>
+        <div class="mockup-card">
+          <div class="mc-glow"></div>
+          <div class="mc-header">
+            <div class="mc-avatar">👶</div>
+            <div>
+              <div class="mc-name">Lucas Martin</div>
+              <div class="mc-id">ID #BTL-0001248 · Born Jan 14, 2024</div>
+            </div>
+            <div class="mc-status"><span class="mc-status-dot"></span> Active</div>
+          </div>
+          <div class="mc-records">
+            <div class="mc-record active">
+              <div class="mr-icon ic1">🏥</div>
+              <div>
+                <div class="mr-label">Birth Registration</div>
+                <div class="mr-date">Jan 14, 2024 · Hôpital Lariboisière</div>
+              </div>
+              <span class="mr-badge mb-cyan">Verified</span>
+            </div>
+            <div class="mc-record">
+              <div class="mr-icon ic2">💉</div>
+              <div>
+                <div class="mr-label">Vaccination — BCG</div>
+                <div class="mr-date">Jan 15, 2024 · Dr. Sophie Leclerc</div>
+              </div>
+              <span class="mr-badge mb-cyan">Done</span>
+            </div>
+            <div class="mc-record">
+              <div class="mr-icon ic3">🔬</div>
+              <div>
+                <div class="mr-label">Newborn Blood Screen</div>
+                <div class="mr-date">Jan 17, 2024 · LabCo Paris</div>
+              </div>
+              <span class="mr-badge mb-purple">Reviewed</span>
+            </div>
+            <div class="mc-record">
+              <div class="mr-icon ic4">📋</div>
+              <div>
+                <div class="mr-label">1-Month Checkup</div>
+                <div class="mr-date">Feb 14, 2024 · Scheduled</div>
+              </div>
+              <span class="mr-badge mb-muted">Upcoming</span>
+            </div>
+          </div>
+        </div>
+        <div class="float-card float-card-br">
+          <span class="fc-emoji">🏥</span>
+          <div>
+            <div class="fc-val">340+</div>
+            <div class="fc-lbl">Partner Hospitals</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+</section>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    // Silently redirect already-logged-in users; never block navigation on failure
-    (async () => {
-      try {
-        const { createClient } = supabase;
-        const db = createClient(
-          'https://tirxwwkzfdabihcimdmm.supabase.co',
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpcnh3d2t6ZmRhYmloY2ltZG1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MDczNDAsImV4cCI6MjA5MzM4MzM0MH0.NUW8f2TQAXHlSSNf-VdnLPXnhiq5DZX22nYz1o_j3yw'
-        );
-        const { data: { user } } = await db.auth.getUser();
-        if (user) {
-          const { data } = await db.from('users').select('role').eq('id', user.id).single();
-          if (data?.role === 'parent') window.location.href = 'parent.html';
-          else if (data?.role === 'doctor') window.location.href = 'doctor.html';
-        }
-      } catch (_) {}
-    })();
-  </script>
+<!-- ── STATS ── -->
+<div id="stats">
+  <div class="stats-band">
+    <div class="container">
+      <div class="stats-row">
+        <div class="stat-item reveal"><div class="stat-num">100%</div><div class="stat-lbl">Lifelong Coverage</div></div>
+        <div class="stat-item reveal d1"><div class="stat-num">4</div><div class="stat-lbl">Stakeholders Connected</div></div>
+        <div class="stat-item reveal d2"><div class="stat-num">GDPR</div><div class="stat-lbl">Fully Certified</div></div>
+        <div class="stat-item reveal d3"><div class="stat-num">€20</div><div class="stat-lbl">Per Family / Year</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── HOW IT WORKS ── -->
+<section id="how-it-works" class="section">
+  <div class="container">
+    <div class="hiw-head">
+      <span class="chip"><span class="chip-pulse"></span> Process</span>
+      <h2 class="section-title reveal">How <span class="grad">Birth-to-Life</span> Works</h2>
+      <div class="neon-line reveal"></div>
+      <p class="section-sub reveal d1">A seamless four-step journey that begins at birth and builds a lifelong intelligent health record.</p>
+    </div>
+    <div class="steps-row">
+      <div class="steps-connector"></div>
+      <div class="step-card reveal d1">
+        <div class="step-num-ring">01</div>
+        <div class="step-icon-box">🏥</div>
+        <div class="step-title">Hospital Registers Birth</div>
+        <p class="step-desc">The partner hospital instantly creates a digital health record at the moment of birth, linked to the family account.</p>
+      </div>
+      <div class="step-card reveal d2">
+        <div class="step-num-ring">02</div>
+        <div class="step-icon-box">👨‍👩‍👧</div>
+        <div class="step-title">Parents Get Full Access</div>
+        <p class="step-desc">Parents receive the mobile app with real-time records, vaccination schedules, growth milestones, and alerts.</p>
+      </div>
+      <div class="step-card reveal d3">
+        <div class="step-num-ring">03</div>
+        <div class="step-icon-box">👨‍⚕️</div>
+        <div class="step-title">Doctors & Labs Add Data</div>
+        <p class="step-desc">Every consultation, prescription, and lab result is securely appended to the record by authorized providers.</p>
+      </div>
+      <div class="step-card reveal d4">
+        <div class="step-num-ring">04</div>
+        <div class="step-icon-box">📊</div>
+        <div class="step-title">Lifelong Health Timeline</div>
+        <p class="step-desc">The record grows through every stage of life — enabling preventive, personalized healthcare from day one.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PARTICIPANTS ── -->
+<section id="participants" class="section">
+  <div class="container">
+    <div class="participants-head">
+      <span class="chip"><span class="chip-pulse"></span> Who It's For</span>
+      <h2 class="section-title reveal">Built for <span class="grad">Every Stakeholder</span></h2>
+      <div class="neon-line reveal"></div>
+      <p class="section-sub reveal d1">One platform, four essential participants. Every role gets a tailored experience built for their workflow.</p>
+    </div>
+    <div class="p-grid">
+
+      <!-- Parents -->
+      <div class="p-card reveal">
+        <div class="p-glow pg-cyan"></div>
+        <div class="p-icon-row">
+          <div class="p-icon pi-cyan">👨‍👩‍👧</div>
+        </div>
+        <div class="p-card-title">Parents & Families</div>
+        <div class="p-card-sub">From the moment your baby is born, you hold a complete, secure, portable health passport — always on your phone, always up to date.</div>
+        <ul class="p-features">
+          <li><span class="pf-check pc-cyan">✓</span> Complete vaccination & checkup history</li>
+          <li><span class="pf-check pc-cyan">✓</span> Real-time notifications from doctors</li>
+          <li><span class="pf-check pc-cyan">✓</span> Growth tracking & developmental milestones</li>
+          <li><span class="pf-check pc-cyan">✓</span> Lab results and prescriptions unified</li>
+          <li><span class="pf-check pc-cyan">✓</span> Emergency QR code sharing</li>
+          <li><span class="pf-check pc-cyan">✓</span> All children included in one plan</li>
+        </ul>
+        <div class="p-price-line">
+          <div>
+            <div class="p-price-val cyan">€20 <span style="font-size:0.9rem;font-family:'Inter',sans-serif;font-weight:400;color:var(--muted)">/year</span></div>
+            <div class="p-price-period">That's €1.67/month</div>
+          </div>
+          <a class="btn btn-glass" href="#waitlist">Join Waitlist →</a>
+        </div>
+      </div>
+
+      <!-- Doctors -->
+      <div class="p-card reveal d1">
+        <div class="p-glow pg-purple"></div>
+        <div class="p-icon-row">
+          <div class="p-icon pi-blue">👨‍⚕️</div>
+        </div>
+        <div class="p-card-title">Doctors & Pediatricians</div>
+        <div class="p-card-sub">Access your patients' complete longitudinal history instantly. Eliminate redundant tests and make better clinical decisions at every visit.</div>
+        <ul class="p-features">
+          <li><span class="pf-check pc-blue">✓</span> Full patient history at a glance</li>
+          <li><span class="pf-check pc-blue">✓</span> FHIR-compliant secure record updates</li>
+          <li><span class="pf-check pc-blue">✓</span> Prescription and referral management</li>
+          <li><span class="pf-check pc-blue">✓</span> Automated vaccination schedule alerts</li>
+          <li><span class="pf-check pc-blue">✓</span> Integrated lab result delivery</li>
+          <li><span class="pf-check pc-blue">✓</span> Unlimited patients in your practice</li>
+        </ul>
+        <div class="p-price-line">
+          <div>
+            <div class="p-price-val cyan">€1,000 <span style="font-size:0.9rem;font-family:'Inter',sans-serif;font-weight:400;color:var(--muted)">/year</span></div>
+            <div class="p-price-period">Per practice, unlimited patients</div>
+          </div>
+          <a class="btn btn-glass" href="#waitlist">Join Waitlist →</a>
+        </div>
+      </div>
+
+      <!-- Hospitals -->
+      <div class="p-card reveal d2">
+        <div class="p-glow pg-pink"></div>
+        <div class="p-icon-row">
+          <div class="p-icon pi-pink">🏥</div>
+        </div>
+        <div class="p-card-title">Hospitals & Clinics</div>
+        <div class="p-card-sub">Become a Birth-to-Life partner and give every newborn a digital health identity at birth, fully integrated with your existing HIS systems.</div>
+        <ul class="p-features">
+          <li><span class="pf-check pc-pink">✓</span> Automated birth record creation</li>
+          <li><span class="pf-check pc-pink">✓</span> HIS / EMR integration via HL7 & FHIR</li>
+          <li><span class="pf-check pc-pink">✓</span> Multi-department access control</li>
+          <li><span class="pf-check pc-pink">✓</span> Population health analytics dashboard</li>
+          <li><span class="pf-check pc-pink">✓</span> Custom branded patient onboarding</li>
+          <li><span class="pf-check pc-pink">✓</span> SLA-backed uptime & support</li>
+        </ul>
+        <div class="p-price-line">
+          <div>
+            <div class="p-price-val custom">Custom Pricing</div>
+            <div class="p-price-period">Based on volume & capacity</div>
+          </div>
+          <a class="btn btn-glass" href="#waitlist">Contact Sales →</a>
+        </div>
+      </div>
+
+      <!-- Labs -->
+      <div class="p-card reveal d3">
+        <div class="p-glow pg-green"></div>
+        <div class="p-icon-row">
+          <div class="p-icon pi-green">🔬</div>
+        </div>
+        <div class="p-card-title">Laboratories</div>
+        <div class="p-card-sub">Deliver lab results directly into the patient's lifelong record. Eliminate paper, enable physicians to act on findings within minutes.</div>
+        <ul class="p-features">
+          <li><span class="pf-check pc-green">✓</span> Direct result push to patient record</li>
+          <li><span class="pf-check pc-green">✓</span> LIS integration (ASTM / HL7 FHIR)</li>
+          <li><span class="pf-check pc-green">✓</span> Instant notification to ordering physician</li>
+          <li><span class="pf-check pc-green">✓</span> Result versioning & audit trail</li>
+          <li><span class="pf-check pc-green">✓</span> Longitudinal trend visualization</li>
+          <li><span class="pf-check pc-green">✓</span> ISO 27001 certified data handling</li>
+        </ul>
+        <div class="p-price-line">
+          <div>
+            <div class="p-price-val custom">Custom Pricing</div>
+            <div class="p-price-period">Based on monthly result volume</div>
+          </div>
+          <a class="btn btn-glass" href="#waitlist">Contact Sales →</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURES / DASHBOARD ── -->
+<section id="features" class="section">
+  <div class="container">
+    <div class="features-grid">
+      <div class="reveal-l">
+        <span class="chip"><span class="chip-pulse"></span> Platform</span>
+        <h2 class="section-title">Preventive Health,<br/><span class="grad">Powered by Data</span></h2>
+        <div class="neon-line"></div>
+        <p class="section-sub">Fragmented visits become a continuous, intelligent health narrative. Prevention becomes the default, not the exception.</p>
+        <div class="features-list">
+          <div class="feat-item">
+            <div class="feat-icon">🔒</div>
+            <div>
+              <div class="feat-title">Sovereign Health Records</div>
+              <p class="feat-desc">Patients and families own their data. Records are portable, consent-driven, and can never be sold or shared without explicit permission.</p>
+            </div>
+          </div>
+          <div class="feat-item">
+            <div class="feat-icon">🔔</div>
+            <div>
+              <div class="feat-title">Proactive Health Alerts</div>
+              <p class="feat-desc">Automated reminders for vaccinations, screenings, and checkups sent to parents and doctors based on age-specific medical guidelines.</p>
+            </div>
+          </div>
+          <div class="feat-item">
+            <div class="feat-icon">📱</div>
+            <div>
+              <div class="feat-title">Universal Access, Anywhere</div>
+              <p class="feat-desc">Mobile app for families, clinical dashboard for providers. Secure access from any device, anywhere in the world, 24/7.</p>
+            </div>
+          </div>
+          <div class="feat-item">
+            <div class="feat-icon">📈</div>
+            <div>
+              <div class="feat-title">Longitudinal Analytics</div>
+              <p class="feat-desc">Visualize growth curves, track biomarker trends over time, and identify patterns invisible in single-visit records.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal-r">
+        <div class="dash-card">
+          <div class="dash-top">
+            <span class="dash-title">Platform Health Dashboard</span>
+            <div class="dash-live"><span class="dash-live-dot"></span> Live</div>
+          </div>
+          <div class="big-metric">
+            <div class="bm-label">Active Records</div>
+            <div class="bm-val">12,480+</div>
+            <div class="bm-trend">↑ 24% growth this month</div>
+          </div>
+          <div class="metric-bars">
+            <div class="mb-row">
+              <div class="mb-top"><span>Vaccination compliance</span><span class="mb-pct">97%</span></div>
+              <div class="mb-track"><div class="mb-fill" style="width:97%"></div></div>
+            </div>
+            <div class="mb-row">
+              <div class="mb-top"><span>Checkup adherence</span><span class="mb-pct">89%</span></div>
+              <div class="mb-track"><div class="mb-fill" style="width:89%"></div></div>
+            </div>
+            <div class="mb-row">
+              <div class="mb-top"><span>Lab result delivery</span><span class="mb-pct">99.8%</span></div>
+              <div class="mb-track"><div class="mb-fill" style="width:99.8%"></div></div>
+            </div>
+            <div class="mb-row">
+              <div class="mb-top"><span>Doctor connectivity</span><span class="mb-pct">74%</span></div>
+              <div class="mb-track"><div class="mb-fill" style="width:74%"></div></div>
+            </div>
+          </div>
+          <div class="dash-floats">
+            <div class="df-item">
+              <span class="df-icon">🏥</span>
+              <div class="df-val">340+</div>
+              <div class="df-lbl">Partner Hospitals</div>
+            </div>
+            <div class="df-item">
+              <span class="df-icon">📊</span>
+              <div class="df-val">94%</div>
+              <div class="df-lbl">Fewer Missed Checkups</div>
+            </div>
+            <div class="df-item">
+              <span class="df-icon">🔬</span>
+              <div class="df-val">2,100+</div>
+              <div class="df-lbl">Labs Connected</div>
+            </div>
+            <div class="df-item">
+              <span class="df-icon">👨‍⚕️</span>
+              <div class="df-val">8,400+</div>
+              <div class="df-lbl">Active Doctors</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PRICING ── -->
+<section id="pricing" class="section">
+  <div class="container">
+    <div class="pricing-head">
+      <span class="chip"><span class="chip-pulse"></span> Pricing</span>
+      <h2 class="section-title reveal">Simple, <span class="grad">Transparent Pricing</span></h2>
+      <div class="neon-line reveal"></div>
+      <p class="section-sub reveal d1">One price per plan, no hidden fees. Families pay less than a coffee a month. Institutions get enterprise infrastructure at a flat rate.</p>
+    </div>
+    <div class="pricing-grid">
+
+      <!-- Family -->
+      <div class="price-card featured reveal">
+        <div class="price-popular-badge">Most Popular</div>
+        <div class="price-icon">👨‍👩‍👧</div>
+        <div class="price-plan">Family Plan</div>
+        <div class="price-for">For parents & families</div>
+        <div class="price-amount-row">
+          <span class="price-sym">€</span>
+          <span class="price-main">20</span>
+          <span class="price-period">/year</span>
+        </div>
+        <div class="price-caption">Just €1.67 per month.</div>
+        <div class="price-sep"></div>
+        <ul class="price-feats">
+          <li><span class="pfc">✓</span> Lifelong digital health record</li>
+          <li><span class="pfc">✓</span> All children included</li>
+          <li><span class="pfc">✓</span> Vaccination tracking & alerts</li>
+          <li><span class="pfc">✓</span> Lab result notifications</li>
+          <li><span class="pfc">✓</span> Growth & milestone tracking</li>
+          <li><span class="pfc">✓</span> Emergency record QR code</li>
+          <li><span class="pfc">✓</span> iOS & Android mobile app</li>
+        </ul>
+        <div class="price-btn-wrap">
+          <a class="btn btn-neon" href="#waitlist">Join Waitlist</a>
+        </div>
+      </div>
+
+      <!-- Doctor -->
+      <div class="price-card reveal d1">
+        <div class="price-icon">👨‍⚕️</div>
+        <div class="price-plan">Practitioner Plan</div>
+        <div class="price-for">For doctors & pediatricians</div>
+        <div class="price-amount-row">
+          <span class="price-sym">€</span>
+          <span class="price-main">1,000</span>
+          <span class="price-period">/year</span>
+        </div>
+        <div class="price-caption">One practice, unlimited patients.</div>
+        <div class="price-sep"></div>
+        <ul class="price-feats">
+          <li><span class="pfc">✓</span> Unlimited patient records</li>
+          <li><span class="pfc">✓</span> Full patient history access</li>
+          <li><span class="pfc">✓</span> Prescription management</li>
+          <li><span class="pfc">✓</span> Integrated lab results</li>
+          <li><span class="pfc">✓</span> Clinical dashboard & analytics</li>
+          <li><span class="pfc">✓</span> FHIR / HL7 compliant</li>
+          <li><span class="pfc">✓</span> Priority support & onboarding</li>
+        </ul>
+        <div class="price-btn-wrap">
+          <a class="btn btn-glass" href="#waitlist">Join Waitlist</a>
+        </div>
+      </div>
+
+      <!-- Hospital -->
+      <div class="price-card reveal d2">
+        <div class="price-icon">🏥</div>
+        <div class="price-plan">Hospital Plan</div>
+        <div class="price-for">For hospitals & clinics</div>
+        <div class="price-amount-row">
+          <span class="price-main custom">Custom</span>
+        </div>
+        <div class="price-caption">Tailored to bed capacity & volume.</div>
+        <div class="price-sep"></div>
+        <ul class="price-feats">
+          <li><span class="pfc">✓</span> HIS / EMR integration</li>
+          <li><span class="pfc">✓</span> Automated birth registration</li>
+          <li><span class="pfc">✓</span> Multi-department access</li>
+          <li><span class="pfc">✓</span> Population health dashboard</li>
+          <li><span class="pfc">✓</span> Custom branding</li>
+          <li><span class="pfc">✓</span> SLA-backed uptime guarantee</li>
+          <li><span class="pfc">✓</span> Dedicated account manager</li>
+        </ul>
+        <div class="price-btn-wrap">
+          <a class="btn btn-glass" href="#waitlist">Contact Sales</a>
+        </div>
+      </div>
+
+      <!-- Lab -->
+      <div class="price-card reveal d3">
+        <div class="price-icon">🔬</div>
+        <div class="price-plan">Laboratory Plan</div>
+        <div class="price-for">For diagnostic laboratories</div>
+        <div class="price-amount-row">
+          <span class="price-main custom">Custom</span>
+        </div>
+        <div class="price-caption">Based on monthly result volume.</div>
+        <div class="price-sep"></div>
+        <ul class="price-feats">
+          <li><span class="pfc">✓</span> LIS integration (ASTM / FHIR)</li>
+          <li><span class="pfc">✓</span> Direct result delivery</li>
+          <li><span class="pfc">✓</span> Instant physician notification</li>
+          <li><span class="pfc">✓</span> Full audit trail & versioning</li>
+          <li><span class="pfc">✓</span> ISO 27001 data handling</li>
+          <li><span class="pfc">✓</span> Analytics & reporting suite</li>
+          <li><span class="pfc">✓</span> Compliance documentation</li>
+        </ul>
+        <div class="price-btn-wrap">
+          <a class="btn btn-glass" href="#waitlist">Contact Sales</a>
+        </div>
+      </div>
+
+    </div>
+    <p class="price-note reveal">All plans include a 30-day free trial. No credit card required. <a href="#waitlist">Questions? Talk to our team →</a></p>
+  </div>
+</section>
+
+<!-- ── SECURITY ── -->
+<section id="security" class="section">
+  <div class="container">
+    <div class="sec-inner">
+      <div class="reveal-l">
+        <span class="chip"><span class="chip-pulse"></span> Trust & Compliance</span>
+        <h2 class="section-title">Built on<br/><span class="grad">Unbreakable Trust</span></h2>
+        <div class="neon-line"></div>
+        <p class="section-sub">Medical data is the most sensitive data in existence. Birth-to-Life is architected from the ground up with security and compliance as non-negotiables.</p>
+      </div>
+      <div class="sec-grid reveal-r">
+        <div class="sec-badge">
+          <span class="sec-icon">🇪🇺</span>
+          <div class="sec-name">GDPR Compliant</div>
+          <p class="sec-desc">Full EU compliance. Patients own and control their data at all times.</p>
+        </div>
+        <div class="sec-badge">
+          <span class="sec-icon">🔐</span>
+          <div class="sec-name">AES-256 Encrypted</div>
+          <p class="sec-desc">All data encrypted in transit and at rest. Zero unauthorized access.</p>
+        </div>
+        <div class="sec-badge">
+          <span class="sec-icon">🏥</span>
+          <div class="sec-name">HL7 FHIR Ready</div>
+          <p class="sec-desc">Industry-standard interoperability with hospitals and lab systems.</p>
+        </div>
+        <div class="sec-badge">
+          <span class="sec-icon">🛡️</span>
+          <div class="sec-name">ISO 27001</div>
+          <p class="sec-desc">Certified by independent auditors for enterprise-grade security.</p>
+        </div>
+        <div class="sec-badge">
+          <span class="sec-icon">📋</span>
+          <div class="sec-name">Full Audit Trail</div>
+          <p class="sec-desc">Every access and change logged permanently with timestamp and actor.</p>
+        </div>
+        <div class="sec-badge">
+          <span class="sec-icon">🌐</span>
+          <div class="sec-name">EU Data Residency</div>
+          <p class="sec-desc">All data stored exclusively in EU data centers. No cross-border transfers.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── WAITLIST ── -->
+<section id="waitlist" class="section">
+  <div class="container">
+    <div class="wl-inner">
+      <span class="chip"><span class="chip-pulse"></span> Early Access</span>
+      <h2 class="section-title reveal">Be <span class="grad">Among the First</span></h2>
+      <div class="neon-line reveal"></div>
+      <p class="section-sub reveal d1">Birth-to-Life launches in 2025. Join the waitlist for early access, founding member pricing, and the chance to shape the product.</p>
+      <div class="wl-box reveal d2">
+        <div class="wl-glow-tl"></div>
+        <div class="wl-glow-br"></div>
+        <div class="wl-box-content">
+          <h3 class="wl-title">Reserve Your Spot</h3>
+          <p class="wl-sub">Free to join · No commitment · Cancel anytime</p>
+          <form class="wl-form" id="wl-form" onsubmit="handleWaitlist(event)">
+            <div class="wl-row">
+              <div class="wl-field">
+                <label for="wf-first">First Name</label>
+                <input type="text" id="wf-first" placeholder="Marie" required />
+              </div>
+              <div class="wl-field">
+                <label for="wf-last">Last Name</label>
+                <input type="text" id="wf-last" placeholder="Dupont" required />
+              </div>
+            </div>
+            <div class="wl-row">
+              <div class="wl-field">
+                <label for="wf-email">Email Address</label>
+                <input type="email" id="wf-email" placeholder="you@example.com" required />
+              </div>
+              <div class="wl-field">
+                <label for="wf-country">Country</label>
+                <input type="text" id="wf-country" placeholder="France" />
+              </div>
+            </div>
+            <div class="wl-field">
+              <label for="wf-role">I am joining as</label>
+              <select id="wf-role" required>
+                <option value="" disabled selected>Select your role</option>
+                <option value="parent">👨‍👩‍👧 Parent / Family</option>
+                <option value="doctor">👨‍⚕️ Doctor / Pediatrician</option>
+                <option value="hospital">🏥 Hospital / Clinic</option>
+                <option value="lab">🔬 Laboratory</option>
+                <option value="other">🔖 Other / Interested Party</option>
+              </select>
+            </div>
+            <div class="wl-submit">
+              <button type="submit" class="btn btn-neon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                Join the Waitlist — It's Free
+              </button>
+            </div>
+            <p class="wl-privacy">By signing up you agree to our <a href="#">Privacy Policy</a> and <a href="#">Terms</a>. We will never share your data.</p>
+          </form>
+          <div id="wl-success">
+            <span class="success-emoji">🚀</span>
+            <div class="success-title">You're on the list!</div>
+            <p class="success-body">We'll send your early access details the moment we launch. Thank you for being part of Birth-to-Life.</p>
+          </div>
+          <div class="wl-counter">
+            <div class="wl-faces">
+              <span>👶</span><span>👩‍⚕️</span><span>🧑‍🔬</span><span>👨</span>
+            </div>
+            <span class="wl-count-text"><strong>1,240+ people</strong> already joined</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="container">
+    <div class="foot-inner">
+      <div class="foot-brand">
+        <a class="foot-logo" href="#">
+          <div class="logo-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M12 4v16M4 12h16" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="12" cy="12" r="9" stroke="#00d4ff" stroke-width="1.5" opacity="0.5"/>
+            </svg>
+          </div>
+          <span class="logo-name">Birth<span>-to-</span>Life</span>
+        </a>
+        <p class="foot-tagline">Preventive digital health from birth. Connecting parents, doctors, hospitals, and labs in one secure lifelong record.</p>
+        <div class="foot-badges">
+          <div class="fbadge"><span class="fbadge-dot"></span> GDPR</div>
+          <div class="fbadge"><span class="fbadge-dot"></span> FHIR</div>
+          <div class="fbadge"><span class="fbadge-dot"></span> ISO 27001</div>
+        </div>
+      </div>
+      <div class="foot-col">
+        <h4>Platform</h4>
+        <ul>
+          <li><a href="#how-it-works">How It Works</a></li>
+          <li><a href="#participants">For Parents</a></li>
+          <li><a href="#participants">For Doctors</a></li>
+          <li><a href="#participants">For Hospitals</a></li>
+          <li><a href="#participants">For Laboratories</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#security">Security</a></li>
+          <li><a href="#">Integrations</a></li>
+          <li><a href="#">API Docs</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Press</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#waitlist">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Birth-to-Life. All rights reserved.</span>
+      <div style="display:flex;gap:20px;">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Accessibility</a>
+        <a href="#">Cookie Preferences</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ── Scroll nav shadow
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 50));
+
+  // ── Reveal on scroll
+  const allReveal = document.querySelectorAll('.reveal, .reveal-l, .reveal-r');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); observer.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  allReveal.forEach(el => observer.observe(el));
+
+  // ── Mobile burger
+  const burger = document.getElementById('burger');
+  let mobileOpen = false;
+  burger.addEventListener('click', () => {
+    mobileOpen = !mobileOpen;
+    const links = document.querySelector('.nav-links');
+    const actions = document.querySelector('.nav-actions');
+    if (mobileOpen) {
+      links.style.cssText = 'display:flex;flex-direction:column;position:fixed;top:68px;left:0;right:0;background:rgba(8,12,24,0.97);backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,212,255,0.15);padding:24px 28px;gap:16px;z-index:299;';
+      actions.style.cssText = 'display:flex;flex-direction:column;position:fixed;top:calc(68px + 230px);left:0;right:0;background:rgba(8,12,24,0.97);padding:0 28px 28px;gap:10px;z-index:299;';
+    } else {
+      links.style.cssText = '';
+      actions.style.cssText = '';
+    }
+  });
+
+  // ── Waitlist submit
+  function handleWaitlist(e) {
+    e.preventDefault();
+    document.getElementById('wl-form').style.display = 'none';
+    document.getElementById('wl-success').style.display = 'block';
+  }
+
+  // ── Subtle parallax on orbs
+  window.addEventListener('mousemove', (e) => {
+    const x = (e.clientX / window.innerWidth - 0.5) * 20;
+    const y = (e.clientY / window.innerHeight - 0.5) * 20;
+    document.querySelectorAll('.orb').forEach((orb, i) => {
+      const factor = (i + 1) * 0.4;
+      orb.style.transform = `translate(${x * factor}px, ${y * factor}px)`;
+    });
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const _sb = supabase.createClient(
+  'https://tirxwwkzfdabihcimdmm.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpcnh3d2t6ZmRhYmloY2ltZG1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MDczNDAsImV4cCI6MjA5MzM4MzM0MH0.NUW8f2TQAXHlSSNf-VdnLPXnhiq5DZX22nYz1o_j3yw'
+);
+
+async function joinWaitlist(email, name) {
+  const { error } = await _sb.from('waitlist').insert([{ email, name }]);
+  if (error) { alert('Error: ' + error.message); return; }
+  alert('You are on the waitlist!');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('button, a').forEach(el => {
+    if (el.textContent.includes('Waitlist') || el.textContent.includes('waitlist')) {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        const email = prompt('Enter your email:');
+        if (!email) return;
+        const name = prompt('Enter your name:');
+        joinWaitlist(email, name || '');
+      });
+    }
+  });
+});
+</script>
 </body>
 </html>
