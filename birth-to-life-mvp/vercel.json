@@ -1,7 +1,1 @@
-{
-  "rewrites": [
-    { "source": "/parent", "destination": "/parent.html" },
-    { "source": "/doctor", "destination": "/doctor.html" },
-    { "source": "/", "destination": "/index.html" }
-  ]
-}
+{"rewrites":[{"source":"/(.*).html","destination":"/$1.html"},{"source":"/","destination":"/index.html"}]}
